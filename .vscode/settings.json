@@ -1,0 +1,6 @@
+{
+    "cmake.cmakePath": "/usr/bin/cmake",
+    "clangd.arguments": [
+        "--compile-commands-dir=build"
+    ]
+}
