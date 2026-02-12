@@ -1,0 +1,21 @@
+# --- Compilazione ---
+build/
+bin/
+*.o
+*.a
+*.so
+
+# --- IDE (Clangd / VS Code) ---
+.cache/
+# Fondamentale escluderlo: contiene percorsi locali assoluti
+compile_commands.json
+
+# --- Sistema ---
+.DS_Store
+*.swp
+*~
+
+# --- Nix ---
+# Se usi i link ai profili nix
+result
+.direnv/
