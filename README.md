@@ -19,17 +19,18 @@ You can find detailed documentation in the `doc/` directory:
 *   [Project Configuration & Setup](doc/1_project_setup.md): Explains the `.vscode` configuration and `CMakeLists.txt` file structure.
 *   [Core Engine & State Machine](doc/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
 *   [Core Engine & State Machine](doc/2_1_logging_and_menu_state.md): Explains the logging system and the menu state.
+*   [Resource Management](doc/3_resource_managment.md): Explains the resource management system.
 
 ---
 
 ### 🗺️ Roadmap del Progetto
 
 * ✅ **Fase 1: Setup dell'Ambiente e Boilerplate**
-* 🔄 **Fase 2: Core Engine & State Machine**
+* ✅ **Fase 2: Core Engine & State Machine**
     * ✅ Architettura Classi Base
-    * 🔄 **Punto Intermedio: Sistema di Logging (C++23 Style)**
-    * ⬜ Creazione dello Stato di Test (Splash/Menu)
-* ⬜ **Fase 3: Resource Management**
+    * ✅ **Punto Intermedio: Sistema di Logging (C++23 Style)**
+    * ✅ Creazione dello Stato di Test (Splash/Menu)
+* 🔄 **Fase 3: Resource Management**
 * ⬜ **Fase 4: Integrazione ECS (EnTT)**
 * ⬜ **Fase 5: Input & Movimento**
 * ⬜ **Fase 6: Tilemap & Collisioni**
