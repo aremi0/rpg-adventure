@@ -10,19 +10,14 @@
 
 class State {
 public:
-    /*
-        virtual: chiama il distruttore della classe derivata (che implementa State)
-        ~State(): distruttore virtuale
-        = default: implementazione di default
-    */
-    virtual ~State() = default;         // "Ehi C++, pulisci sempre la classe derivata corretta!"
+    virtual ~State() = default;
 
-    virtual void init() = 0;            // Il "= 0" rende la classe una interfaccia: "Chi mi eredita DEVE implementare questo"
+    virtual void init() = 0;
     virtual void handleInput() = 0;
     virtual void update(float dt) = 0;
     virtual void draw() = 0;
 
     // Utile per mettere in pausa uno stato senza distruggerlo
-    virtual void pause() {}         // il "{}" rende opzionale l'implementazione, se non lo scrivi non succede nulla
+    virtual void pause() {}
     virtual void resume() {}
 };

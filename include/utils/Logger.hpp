@@ -4,7 +4,6 @@
 #include <chrono>
 #include <format>
 #include <source_location>
-#include <system_error>
 
 
 enum class LogLevel {

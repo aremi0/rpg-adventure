@@ -4,7 +4,7 @@
 void StateMachine::addState(std::unique_ptr<State> newState, bool isReplacing) {
     _isAdding = true;
     _isReplacing = isReplacing;
-    _newState = std::move(newState); // Il move() sposta la proprietà del puntatore a _newState, liberando newState
+    _newState = std::move(newState);
     Logger::debug("Richiesta aggiunta nuovo stato (Replacing: {})", isReplacing);
 }
 
