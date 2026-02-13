@@ -1,0 +1,5 @@
+1. Spiegare a chat che ho scaricato un tileset gratuito che è composto da tante immagini, per esempio ha un png (tileset) per il personaggio che attacca, uno per il personaggio che corre, eccetera.
+Come converebbe memorizzare questi tileset? Tutti in una unica mappa o fare più mappe per contesto? Una per gli ambienti, una per i personaggi/nemici eccetera?
+2. Aggiungere un meccanismo che mi permette di loggare solo i log in debito, trace, ecc... Possibilmente leggendo da file properties o yaml?
+Ha senso leggere queste properties da yaml e quali altri properties potrei pensare di aggiungere in futuro?
+Per esempio il salvataggio delle impostazioni sul main menu può essere letto da yaml (read-only) ed eventualmente salvato da qualche parte e se esiste il file salvato allora legge prioritariamente dal file salvato altrimenti dallo yaml come fallback?
