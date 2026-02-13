@@ -1,21 +1,9 @@
-#include <SFML/Graphics.hpp>
-#include <print>
+#include "core/Game.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "RPG Adventure");
-
-    std::print("Engine avviato correttamente con C++23!\n");
-
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear(sf::Color::Red);
-        window.display();
-    }
-
+    // Avvia il gioco. In un'app reale, potresti leggere 
+    // risoluzione e titolo da un file di configurazione.
+    Game game(800, 600, "RPG-ADVENTURE by Aremi"); // L'oggetto Game viene creato sullo Stack, il suo costruttore fa partire il metodo run()
+    
     return 0;
 }
