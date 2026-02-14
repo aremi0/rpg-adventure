@@ -4,14 +4,14 @@
 
 class MainMenuState : public State {
 public:
-    MainMenuState(GameDataRef data);
+    MainMenuState(GameDataRef data, std::string_view state_name);
 
-    void init() override;
-    void handleInput() override;
-    void update(float dt) override;
-    void draw() override;
+    void Init() override;
+    void HandleInput() override;
+    void Update(float dt) override;
+    void Draw() override;
 
 private:
-    GameDataRef _data;
-    sf::RectangleShape _testButton; // Solo per vedere qualcosa a schermo
+    GameDataRef data_;
+    sf::RectangleShape test_button_; // Solo per vedere qualcosa a schermo
 };

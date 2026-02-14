@@ -16,9 +16,9 @@ public:
     Game(int width, int height, std::string title);
 
 private:
-    static constexpr float dt = 1.0f / 60.0f; // Clock fisso a 60 FPS per la logica
-    sf::Clock _clock;
-    GameDataRef _data;
+    static constexpr float kDeltaTime = 1.0f / 60.0f; // Clock fisso a 60 FPS per la logica
+    sf::Clock clock_;
+    GameDataRef data_;
 
-    void run();
+    void Run();
 };
