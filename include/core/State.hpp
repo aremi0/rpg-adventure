@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <string_view>
 
 /**
  * @brief Classe base astratta (interfaccia) per gli stati del gioco
@@ -12,12 +13,20 @@ class State {
 public:
     virtual ~State() = default;
 
-    virtual void init() = 0;
-    virtual void handleInput() = 0;
-    virtual void update(float dt) = 0;
-    virtual void draw() = 0;
+    virtual void Init() = 0;
+    virtual void HandleInput() = 0;
+    virtual void Update(float dt) = 0;
+    virtual void Draw() = 0;
 
     // Utile per mettere in pausa uno stato senza distruggerlo
-    virtual void pause() {}
-    virtual void resume() {}
+    virtual void Pause() {}
+    virtual void Resume() {}
+
+    std::string_view GetStateName() const { return state_name_; }
+
+protected:
+    explicit State(std::string_view state_name) : state_name_(state_name) {}
+
+private:
+    std::string state_name_;
 };
