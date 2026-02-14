@@ -1,50 +1,50 @@
 #include "core/StateMachine.hpp"
 #include "utils/Logger.hpp"
 
-void StateMachine::addState(std::unique_ptr<State> newState, bool isReplacing) {
-    _isAdding = true;
-    _isReplacing = isReplacing;
-    _newState = std::move(newState);
-    Logger::debug("Richiesta aggiunta nuovo stato (Replacing: {})", isReplacing);
+void StateMachine::AddState(std::unique_ptr<State> new_state, bool is_replacing) {
+    is_adding_ = true;
+    is_replacing_ = is_replacing;
+    new_state_ = std::move(new_state);
+    Logger::Debug("Richiesta aggiunta nuovo stato ({}) (Replacing: {})", new_state_->GetStateName(), is_replacing);
 }
 
-void StateMachine::removeState() {
-    _isRemoving = true;
-    Logger::debug("Richiesta rimozione stato corrente");
+void StateMachine::RemoveState() {
+    is_removing_ = true;
+    Logger::Debug("Richiesta rimozione stato corrente ({})", states_.top()->GetStateName());
 }
 
-void StateMachine::processStateChanges() {
+void StateMachine::ProcessStateChanges() {  
     // 1. Gestione rimozione
-    if (_isRemoving && !_states.empty()) {
-        _states.pop();
-        Logger::info("Stato rimosso");
-        if (!_states.empty()) {
-            _states.top()->resume();
-            Logger::info("Stato precedente ripristinato (resume)");
+    if (is_removing_ && !states_.empty()) {
+        states_.pop();
+        Logger::Info("Stato rimosso ({})", states_.top()->GetStateName());
+        if (!states_.empty()) {
+            states_.top()->Resume();
+            Logger::Info("Stato precedente ripristinato (resume) ({})", states_.top()->GetStateName());
         }
-        _isRemoving = false;
+        is_removing_ = false;
     }
 
     // 2. Gestione aggiunta
-    if (_isAdding) {
-        if (!_states.empty()) {
-            if (_isReplacing) {
-                _states.pop();
-                Logger::info("Stato precedente rimosso (sostituzione)");
+    if (is_adding_) {
+        if (!states_.empty()) {
+            if (is_replacing_) {
+                states_.pop();
+                Logger::Info("Stato precedente rimosso (sostituzione) ({})", states_.top()->GetStateName());
             } else {
-                _states.top()->pause();
-                Logger::info("Stato precedente messo in pausa");
+                states_.top()->Pause();
+                Logger::Info("Stato precedente messo in pausa ({})", states_.top()->GetStateName());
             }
         }
 
-        _states.push(std::move(_newState));
-        _states.top()->init();
-        Logger::info("Nuovo stato inizializzato e pushato sullo stack");
-        _isAdding = false;
+        states_.push(std::move(new_state_));
+        states_.top()->Init();
+        Logger::Info("Nuovo stato inizializzato e pushato sullo stack ({})", states_.top()->GetStateName());
+        is_adding_ = false;
     }
 }
 
-std::unique_ptr<State>& StateMachine::getActiveState() {
+std::unique_ptr<State>& StateMachine::GetActiveState() {
     // TODO: in un contesto reale, qui andrebbe un controllo se lo stack è vuoto
-    return _states.top();
+    return states_.top();
 }

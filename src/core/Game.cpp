@@ -2,44 +2,45 @@
 #include "states/MainMenuState.hpp"
 #include "utils/Logger.hpp"
 
-Game::Game(int width, int height, std::string title) : _data(std::make_shared<GameData>()) {
-    _data->window.create(sf::VideoMode({static_cast<unsigned>(width), static_cast<unsigned>(height)}), title);
+Game::Game(int width, int height, std::string title) : data_(std::make_shared<GameData>()) {
+    data_->window.create(sf::VideoMode({static_cast<unsigned>(width), static_cast<unsigned>(height)}), title);
     
     // Qui in futuro caricheremo lo stato iniziale (es. MenuState)
-    _data->machine.addState(std::make_unique<MainMenuState>(_data));
-    Logger::debug("Stato iniziale caricato: Main Menu");
+    data_->machine.AddState(std::make_unique<MainMenuState>(data_, "Main Menu"));
+    data_->machine.ProcessStateChanges();
+    Logger::Debug("Stato iniziale caricato: ({})", data_->machine.GetActiveState()->GetStateName());
 
-    this->run();
+    this->Run();
 }   
 
-void Game::run() {
-    float newTime, frameTime, interpolation;
-    float currentTime = _clock.getElapsedTime().asSeconds();
+void Game::Run() {
+    float new_time, frame_time, interpolation;
+    float current_time = clock_.getElapsedTime().asSeconds();
     float accumulator = 0.0f;
 
-    while (_data->window.isOpen()) {
+    while (data_->window.isOpen()) {
         // Gestione cambi di stato
-        _data->machine.processStateChanges();
+        data_->machine.ProcessStateChanges();
 
-        newTime = _clock.getElapsedTime().asSeconds();
-        frameTime = newTime - currentTime;
+        new_time = clock_.getElapsedTime().asSeconds();
+        frame_time = new_time - current_time;
 
-        if (frameTime > 0.25f) frameTime = 0.25f; // Limite per evitare "salti" enormi dopo un lag
+        if (frame_time > 0.25f) frame_time = 0.25f; // Limite per evitare "salti" enormi dopo un lag
 
-        currentTime = newTime;
-        accumulator += frameTime;
+        current_time = new_time;
+        accumulator += frame_time;
 
         // Loop di Update (Fixed Timestep)
-        while (accumulator >= dt) {
-            _data->machine.getActiveState()->handleInput();
-            _data->machine.getActiveState()->update(dt);
+        while (accumulator >= kDeltaTime) {
+            data_->machine.GetActiveState()->HandleInput();
+            data_->machine.GetActiveState()->Update(kDeltaTime);
 
-            accumulator -= dt;
+            accumulator -= kDeltaTime;
         }
 
         // Render
-        _data->window.clear();
-        _data->machine.getActiveState()->draw();
-        _data->window.display();
+        data_->window.clear();
+        data_->machine.GetActiveState()->Draw();
+        data_->window.display();
     }
 }
