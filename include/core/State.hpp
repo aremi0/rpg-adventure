@@ -10,23 +10,23 @@
  */
 
 class State {
-public:
-    virtual ~State() = default;
+    public:
+        virtual ~State() = default;
 
-    virtual void Init() = 0;
-    virtual void HandleInput() = 0;
-    virtual void Update(float dt) = 0;
-    virtual void Draw() = 0;
+        virtual void Init() = 0;
+        virtual void HandleInput() = 0;
+        virtual void Update(float dt) = 0;
+        virtual void Draw() = 0;
 
-    // Utile per mettere in pausa uno stato senza distruggerlo
-    virtual void Pause() {}
-    virtual void Resume() {}
+        // Utile per mettere in pausa uno stato senza distruggerlo
+        virtual void Pause() {}
+        virtual void Resume() {}
 
-    std::string_view GetStateName() const { return state_name_; }
+        std::string_view GetStateName() const { return state_name_; }
 
-protected:
-    explicit State(std::string_view state_name) : state_name_(state_name) {}
+    protected:
+        explicit State(std::string_view state_name) : state_name_(state_name) {}
 
-private:
-    std::string state_name_;
+    private:
+        std::string state_name_;
 };
