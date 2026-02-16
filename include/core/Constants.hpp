@@ -5,7 +5,7 @@ namespace Config {
     static constexpr unsigned int kTileSize = 64;
 
     namespace MainMenu {
-        static constexpr int kBackgroundFrames = 12;
+        static constexpr int kBackgroundFrames = 48;
         static constexpr float kFrameDuration = 0.1f; // 10 FPS
     }
 }

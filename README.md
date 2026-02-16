@@ -29,14 +29,19 @@ You can find detailed documentation in the `doc/` directory:
 
 ---
 
-### 🗺️ Roadmap del Progetto
+### 🗺️ Roadmap Aggiornata
+
+Ho inserito la nuova **Fase 3.5** come richiesto.
 
 * ✅ **Fase 1: Setup dell'Ambiente e Boilerplate**
 * ✅ **Fase 2: Core Engine & State Machine**
-    * ✅ Architettura Classi Base
-    * ✅ **Punto Intermedio: Sistema di Logging (C++23 Style)**
-    * ✅ Creazione dello Stato di Test (Splash/Menu)
-* 🔄 **Fase 3: Resource Management**
+* ✅ **Fase 3: Resource Management** (Texture & Animations)
+* 🔄 **Fase 3.5: UI, Audio e Menu Completo**
+    * ⬜ **3.5.1: Classe UI Button** (Creazione pulsanti interattivi e centrati).
+    * ⬜ **3.5.2: Gestione Audio** (Aggiornamento AssetManager per SFX e Music).
+    * ⬜ **3.5.3: Settings State** (Nuovo stato per risoluzione e volumi).
+    * ⬜ **3.5.4: Assemblaggio Main Menu** (Unire tutto con sfondo, musica e pulsanti).
+
 * ⬜ **Fase 4: Integrazione ECS (EnTT)**
 * ⬜ **Fase 5: Input & Movimento**
 * ⬜ **Fase 6: Tilemap & Collisioni**

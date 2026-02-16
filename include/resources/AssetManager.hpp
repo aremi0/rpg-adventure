@@ -56,7 +56,7 @@ class AssetManager {
             }
 
             GetStorage<T>()[name] = std::move(asset);
-            Logger::Info("Asset '{}' caricato con successo da: {}", name, file_path);
+            Logger::Trace("Asset '{}' caricato con successo da: {}", name, file_path);
             return {};
         }
 
