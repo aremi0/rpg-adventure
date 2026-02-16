@@ -1,14 +1,28 @@
 #include "states/MainMenuState.hpp"
 #include "utils/Logger.hpp"
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 MainMenuState::MainMenuState(GameDataRef data,  std::string_view state_name) : data_(data), State(state_name) {}
 
 void MainMenuState::Init() {
     Logger::Trace("Inizializzazione ({})", this->GetStateName());
 
-    test_button_.setSize({200.0f, 50.0f});
-    test_button_.setFillColor(sf::Color::Red);
-    test_button_.setPosition({300.0f, 275.0f}); // Al centro circa
+    // 1. Provo a caricare una texture che non esiste
+    auto result = data_->assets.LoadAsset<sf::Texture>("hero_sprite", "assets/textures/non_esiste.png");
+    if (!result) {
+        Logger::Error("Caricamento fallito come previsto (Test Fallback). Errore: {}", static_cast<int>(result.error()));
+    }
+
+    // 2. Recupero la texture (dovrebbe restituire quella viola/nera a scacchi)
+    const sf::Texture& tex = data_->assets.GetAsset<sf::Texture>("hero_sprite");
+
+    // 3. Configuro uno sprite di test per vederla
+    test_sprite_.setTexture(tex);
+    test_sprite_.setPosition(100, 100);
+    test_sprite_.setScale(2.0f, 2.0f);
+
+    auto main_menu_background = data_->assets.LoadAsset<sf::Texture>("background", "assets/textures/main_menu.gif");
 }
 
 void MainMenuState::HandleInput() {
@@ -30,5 +44,5 @@ void MainMenuState::Update(float dt) {
 }
 
 void MainMenuState::Draw() {
-    data_->window.draw(test_button_);
+    data_->window.draw(test_sprite_);
 }

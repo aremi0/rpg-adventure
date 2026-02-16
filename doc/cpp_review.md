@@ -6,11 +6,13 @@ Un compendio delle scelte architetturali e delle feature C++ utilizzate nel prog
 
 1.  [Concetti Base e Tipi Moderni](#1-concetti-base-e-tipi-moderni)
     *   [1.1 Alias di Tipo (`using`)](#11-alias-di-tipo-using)
-    *   [1.2 Stringhe Ottimizzate (`std::string_view`)](#12-stringhe-ottimizzate-stdstring_view)
+    *   [1.2 Deduzione del tipo (`auto`)](#12-deduzione-del-tipo-auto)
+    *   [1.3 Stringhe Ottimizzate (`std::string_view`)](#13-stringhe-ottimizzate-stdstring_view)
 2.  [Progettazione delle Classi (Costruzione e Distruzione)](#2-progettazione-delle-classi-costruzione-e-distruzione)
     *   [2.1 Member Initializer List](#21-member-initializer-list)
     *   [2.2 Metodi Speciali (`default` e `delete`)](#22-metodi-speciali-default-e-delete)
     *   [2.3 Distruttori Virtuali](#23-distruttori-virtuali)
+    *   [2.4 Const Overloading (Metodi `const`)](#24-const-overloading-metodi-const)
 3.  [Gestione della Memoria (Smart Pointers)](#3-gestione-della-memoria-smart-pointers)
     *   [3.1 unique_ptr vs shared_ptr](#31-unique_ptr-vs-shared_ptr)
     *   [3.2 Creazione (Factory Methods)](#32-creazione-factory-methods)
@@ -18,12 +20,100 @@ Un compendio delle scelte architetturali e delle feature C++ utilizzate nel prog
 4.  [Architettura e Polimorfismo](#4-architettura-e-polimorfismo)
     *   [4.1 Interfacce e Classi Astratte](#41-interfacce-e-classi-astratte)
     *   [4.2 Metodi Opzionali (Hook)](#42-metodi-opzionali-hook)
-5.  [Il Loop di Gioco](#5-il-loop-di-gioco)
-    *   [5.1 Delta Time (`dt`)](#51-delta-time-dt)
-6.  [C++ Avanzato: Template e Metaprogrammazione](#6-c-avanzato-template-e-metaprogrammazione)
-    *   [6.1 L-values vs R-values](#61-l-values-vs-r-values)
-    *   [6.2 Template Variadici](#62-template-variadici)
-    *   [6.3 Universal References e Perfect Forwarding](#63-universal-references-e-perfect-forwarding)
+5.  [C++ Avanzato: Template e Metaprogrammazione](#5-c-avanzato-template-e-metaprogrammazione)
+    *   [5.1 L-values vs R-values](#51-l-values-vs-r-values)
+    *   [5.2 Template Variadici](#52-template-variadici)
+    *   [5.3 Universal References e Perfect Forwarding](#53-universal-references-e-perfect-forwarding)
+    *   [5.4 Compile-Time If (`if constexpr`)](#54-compile-time-if-if-constexpr)
+6.  [Gestione degli Errori e Tipi Monadici (C++23)](#6-gestione-degli-errori-e-tipi-monadici-c23)
+    *   [6.1 Il paradigma `std::expected` vs Eccezioni](#61-il-paradigma-stdexpected-vs-eccezioni)
+    *   [6.2 Utilizzo di `std::unexpected**](#62-utilizzo-di-stdunexpected)
+
+1.  [Il Loop di Gioco](#1-il-loop-di-gioco)Certamente! La keyword `auto` è uno dei pilastri del C++ Moderno (introdotto col C++11). Spesso viene fraintesa come "fai quello che vuoi", ma in realtà segue regole ferree e molto utili.
+
+### Dove inserirlo nell'Indice
+
+Ti consiglio di inserirlo nel **Capitolo 1**, subito dopo gli Alias. È un concetto base fondamentale prima di passare a cose più complesse.
+
+**1. Concetti Base e Tipi Moderni**
+
+* 1.1 Alias di Tipo (`using`)
+* **1.2 Deduzione del Tipo (`auto`)** <-- *Nuova sezione*
+* 1.3 Stringhe Ottimizzate (`std::string_view`)
+
+---
+
+### Contenuto per gli Appunti
+
+Ecco la spiegazione formale:
+
+## 1.2 Deduzione del Tipo (`auto`)
+
+La keyword `auto` istruisce il compilatore a dedurre il tipo di una variabile in base alla sua espressione di inizializzazione **a tempo di compilazione**.
+Non trasforma il C++ in un linguaggio dinamico (come Python o JavaScript); il tipo è statico, fisso e sicuro, ma non è necessario scriverlo esplicitamente.
+
+### Vantaggi Principali
+
+1. **Garanzia di Inizializzazione:** Non è possibile dichiarare una variabile `auto` senza inizializzarla (evita variabili "spazzatura").
+2. **Leggibilità:** Semplifica la sintassi quando i tipi sono molto lunghi o complessi (es. iteratori o lambda).
+3. **Refactoring Sicuro:** Se cambi il tipo di ritorno di una funzione, non devi riscrivere manualmente tutte le variabili che ne catturano il risultato.
+
+### Regole di Deduzione (Value vs Reference)
+
+È fondamentale capire come `auto` gestisce copie e riferimenti.
+
+**1. `auto` (Copia per valore)**
+Di default, `auto` crea una **copia** del valore e ignora i riferimenti (`&`) e i qualificatori `const` di primo livello.
+
+```cpp
+const int& numero = 10;
+auto x = numero; // 'x' è di tipo 'int' (NON 'const int&'). È una copia modificabile.
+
+```
+
+**2. `const auto&` (Riferimento costante)**
+Quando vuoi evitare la copia (per performance) e garantire l'immutabilità (per sicurezza). È la forma più comune per oggetti complessi (es. stringhe, vettori).
+
+```cpp
+std::string messaggio = "Ciao";
+const auto& ref = messaggio; // 'ref' è 'const std::string&'. Nessuna copia.
+
+```
+
+**3. `auto&` (Riferimento modificabile)**
+Permette di modificare l'oggetto originale.
+
+```cpp
+auto& modificabile = messaggio; // 'modificabile' è 'std::string&'.
+
+```
+
+### Esempi Pratici
+
+**Semplificazione di Tipi Complessi:**
+Senza `auto`, scorrere una mappa o un vettore richiedeva sintassi verbosa.
+
+```cpp
+// VECCHIO C++ (Verboso e prono a errori)
+std::map<std::string, int>::iterator it = myMap.begin();
+
+// C++ MODERNO (Pulito)
+auto it = myMap.begin();
+
+```
+
+**Pattern AAA (Almost Always Auto):**
+Molti sviluppatori moderni consigliano di usare `auto` per la maggior parte delle variabili locali (salvo i tipi primitivi semplici come `int` o `bool` dove l'esplicitazione aiuta la lettura immediata), spostando l'attenzione dal *tipo* al *valore*.
+
+```cpp
+// Invece di:
+GameDataRef data = std::make_shared<GameData>();
+
+// Si preferisce:
+auto data = std::make_shared<GameData>();
+
+```
+    *   [1.1 Delta Time (`dt`)](#11-delta-time-dt)
 
 ---
 
@@ -38,7 +128,16 @@ using GameDataRef = std::shared_ptr<GameData>;
 *   **Cos'è**: Un nome alternativo per un tipo esistente. È il sostituto moderno di `typedef`.
 *   **Perché**: Rende il codice leggibile (`GameDataRef` vs `std::shared_ptr<GameData>`) e facile da mantenere (se cambi il tipo sottostante, cambi solo una riga).
 
-### 1.2 Stringhe Ottimizzate (`std::string_view`)
+### 1.2 Deduzione del tipo (`auto`)
+
+```cpp
+auto texture = std::make_unique<sf::Texture>();
+```
+
+*   **Cos'è**: `auto` permette al compilatore di dedurre il tipo di una variabile dal valore che le viene assegnato.
+*   **Perché**: Rende il codice più conciso e leggibile, specialmente quando si lavora con tipi complessi come `std::unique_ptr` o `std::shared_ptr`.
+
+### 1.3 Stringhe Ottimizzate (`std::string_view`)
 
 ```cpp
 void LoadTexture(std::string_view path);
@@ -96,6 +195,22 @@ virtual ~State() = default;
 *   **Regola D'Oro**: Se una classe ha anche solo un metodo `virtual`, DEVE avere un distruttore virtuale.
 *   **Perché**: Permette di distruggere correttamente un oggetto derivato (`MenuState`) tramite un puntatore alla base (`State*`). Senza di esso, verrebbe chiamato solo il distruttore base e i membri di `MenuState` rimarrebbero in memoria (Memory Leak).
 
+### 2.4 Const Overloading (Metodi `const`)
+
+È possibile avere due metodi con lo stesso nome e gli stessi parametri, differenziati solo dalla parola chiave `const` alla fine.
+*   **Accesso in Lettura**: `const T& Get() const` viene chiamato su oggetti `const` (o tramite riferimenti `const`). Garantisce che l'oggetto non venga modificato.
+*   **Accesso in Scrittura**: `T& Get()` viene chiamato su oggetti modificabili. Restituisce un riferimento modificabile.
+
+**Esempio (AssetManager):**
+```cpp
+// Versione modificabile (usata per caricare asset)
+// auto& GetStorage() { ... }
+
+// Versione sola lettura (usata per disegnare o ottenere asset)
+// const auto& GetStorage() const { ... }
+```
+Il compilatore sceglie automaticamente la versione corretta in base al contesto.
+
 ---
 
 ## 3. Gestione della Memoria (Smart Pointers)
@@ -147,18 +262,7 @@ Un metodo virtuale con corpo vuoto `{}` fornisce un'implementazione di default "
 
 ---
 
-## 5. Il Loop di Gioco
-
-### 5.1 Delta Time (`dt`)
-
-```cpp
-const float dt = 1.0f / 60.0f;
-```
-Il tempo trascorso tra un frame e l'altro. Usare `dt` nei calcoli di movimento (`pos += vel * dt`) rende la velocità del gioco indipendente dal frame rate (o frame-rate independent).
-
----
-
-## 6. C++ Avanzato: Template e Metaprogrammazione
+## 5. C++ Avanzato: Template e Metaprogrammazione
 
 Analizziamo questa funzione magica da `Logger.hpp`:
 
@@ -168,7 +272,7 @@ static void info(LogFormat fmt, Args&&... args)
 { log(LogLevel::Info, fmt, std::forward<Args>(args)...); }
 ```
 
-### 6.1 L-values vs R-values
+### 5.1 L-values vs R-values
 
 Per capire il resto, serve questa distinzione fondamentale:
 *   **L-value (Locator Value)**: Ha un nome e un indirizzo in memoria. Persiste oltre la singola espressione.
@@ -177,7 +281,7 @@ Per capire il resto, serve questa distinzione fondamentale:
     *   Es: `5`, `x + 2`, `getLocation()`.
 *   **Perché importa?**: Gli R-value possono essere **spostati** (`move`) invece che copiati, rubando le loro risorse (molto efficiente).
 
-### 6.2 Template Variadici
+### 5.2 Template Variadici
 
 ```cpp
 template<typename... Args>
@@ -188,7 +292,7 @@ template<typename... Args>
 *   **`args...`** (nel corpo): È l'operatore di **espansione**. Spacchetta gli argomenti separandoli da virgole.
     Se chiami `info(fmt, a, b, c)`, `log(..., args...)` diventa `log(..., a, b, c)`.
 
-### 6.3 Universal References e Perfect Forwarding
+### 5.3 Universal References e Perfect Forwarding
 
 ```cpp
 Args&&... args
@@ -207,3 +311,110 @@ std::forward<Args>(args)...
     *   Se `args` era un R-value -> lo casta di nuovo a R-value (permettendo il move).
 
 Questo meccanismo (**Perfect Forwarding**) permette alla funzione `info` di essere completamente trasparente: passa gli argomenti a `log` *esattamente* come li ha ricevuti, senza copie extra non necessarie.
+
+### 5.4 Compile-Time If (`if constexpr`)
+
+Introdotto in C++17, `if constexpr` è un costrutto condizionale valutato **durante la compilazione**, non mentre il gioco è in esecuzione.
+
+*   **A cosa serve**: Permette di scrivere funzioni generiche che si comportano diversamente in base al tipo `T`, scartando totalmente i rami di codice non validi per quel tipo.
+*   **Type Traits**: Spesso usato con tratti di tipo come `std::is_same_v<T, U>`, che restituisce `true` se `T` e `U` sono lo stesso tipo.
+
+**Esempio (AssetManager):**
+```cpp
+template<typename T>
+auto& GetStorage() {
+    if constexpr (std::is_same_v<T, sf::Texture>) {
+        return textures_; // Compilato SOLO se T è sf::Texture
+    } else if constexpr (std::is_same_v<T, sf::Font>) {
+        return fonts_;    // Compilato SOLO se T è sf::Font
+    }
+    // I rami non validi vengono eliminati dal binario finale.
+}
+```
+
+## 6. Gestione degli Errori e Tipi Monadici (C++23)
+
+### 6.1 Il tipo `std::expected`
+
+Introdotto nello standard C++23 (header `<expected>`), `std::expected<T, E>` è un tipo "vocabolario" che rappresenta il risultato di un'operazione che può avere successo (restituendo un valore di tipo `T`) oppure fallire (restituendo un errore di tipo `E`).
+
+A differenza delle eccezioni (`try-catch`), che interrompono il flusso di esecuzione e sono costose in termini di performance, e a differenza dei codici di errore (che spesso ignorano il valore di ritorno), `std::expected` obbliga il programmatore a gestire esplicitamente il caso di fallimento, mantenendo il codice lineare e performante.
+
+**Sintassi:**
+
+```cpp
+std::expected<T, E>
+
+```
+
+* **T (Type):** Il tipo del valore restituito in caso di successo (può essere `void`).
+* **E (Error):** Il tipo dell'errore restituito in caso di fallimento.
+
+### 6.2 Utilizzo di `std::unexpected`
+
+Quando una funzione deve segnalare un errore, non può restituire direttamente un oggetto di tipo `E` (perché il compilatore non saprebbe distinguerlo da `T` in alcuni casi). Si utilizza quindi il wrapper `std::unexpected` per "impacchettare" l'errore.
+
+**Esempio di Implementazione (Asset Manager):**
+
+```cpp
+#include <expected>
+#include <string>
+
+enum class AssetError {
+    FileNotFound,
+    ParseError,
+    CorruptedData
+};
+
+// Funzione che tenta di caricare una texture
+// Ritorna void se successo, AssetError se fallisce
+std::expected<void, AssetError> loadTexture(const std::string& path) {
+    if (!file_exists(path)) {
+        // Restituisce l'errore impacchettato
+        return std::unexpected(AssetError::FileNotFound); 
+    }
+    
+    if (!parse_texture_data(path)) {
+        return std::unexpected(AssetError::ParseError);
+    }
+
+    // Successo: restituisce un oggetto expected "vuoto" (poiché T è void)
+    return {}; 
+}
+
+```
+
+**Esempio di Utilizzo (Chiamante):**
+L'oggetto restituito può essere valutato come un booleano (`true` se contiene il valore, `false` se contiene l'errore).
+
+```cpp
+auto result = loadTexture("hero.png");
+
+if (result) {
+    // Successo: possiamo procedere
+    LOG("Texture caricata!");
+} else {
+    // Fallimento: accediamo all'errore con .error()
+    AssetError err = result.error();
+    LOG("Errore critico: {}", static_cast<int>(err));
+}
+
+```
+
+**Nota sui metodi monadici (Fluent Interface):**
+`std::expected` supporta metodi come `.and_then()` e `.or_else()` che permettono di concatenare operazioni in modo funzionale, evitando una "piramide" di istruzioni `if`.
+
+---
+
+
+
+---
+
+## 1. Il Loop di Gioco
+
+### 1.1 Delta Time (`dt`)
+
+```cpp
+const float dt = 1.0f / 60.0f;
+```
+Il tempo trascorso tra un frame e l'altro. Usare `dt` nei calcoli di movimento (`pos += vel * dt`) rende la velocità del gioco indipendente dal frame rate (o frame-rate independent).

@@ -13,5 +13,5 @@ class MainMenuState : public State {
 
     private:
         GameDataRef data_;
-        sf::RectangleShape test_button_; // Solo per vedere qualcosa a schermo
+        sf::Sprite test_sprite_;
 };
