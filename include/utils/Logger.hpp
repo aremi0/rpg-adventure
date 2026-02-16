@@ -5,7 +5,6 @@
 #include <format>
 #include <source_location>
 
-
 enum class LogLevel {
     Trace, Debug, Info, Warning, Error
 };
@@ -48,13 +47,13 @@ class Logger {
 
             // Estraiamo il nome della funzione ridotto
             std::string_view func_name = format.loc.function_name();
-            auto first_colon_pos = func_name.find_first_of("::");
-            auto last_colon_pos = func_name.find_first_of("(");
-            if (last_colon_pos != std::string_view::npos) {
-                func_name = func_name.substr(0, last_colon_pos);
+
+            if (auto paren_pos = func_name.find("("); paren_pos != std::string_view::npos) {
+                func_name = func_name.substr(0, paren_pos);
             }
-            if (first_colon_pos != std::string_view::npos) {
-                func_name.remove_prefix(first_colon_pos + 2);
+
+            if (auto colon_pos = func_name.rfind("::"); colon_pos != std::string_view::npos) {
+                func_name.remove_prefix(colon_pos + 2);
             }
             
             // Stampa: [Ora] [LIVELLO] [File:Riga @ Funzione] Messaggio
