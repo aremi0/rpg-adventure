@@ -4,6 +4,7 @@
 #include <string>
 #include <expected>
 #include "utils/Logger.hpp"
+#include "core/Constants.hpp"
 
 // Definiamo i possibili errori di caricamento
 enum class AssetError {
@@ -14,16 +15,14 @@ enum class AssetError {
 
 class AssetManager {
     public:
-        static constexpr unsigned int kTileSize = 64;
-
         AssetManager() {
             // Creazione texture di fallback (scacchiera viola/nera a blocchi)
             sf::Image fallback_img;
-            fallback_img.create(kTileSize, kTileSize, sf::Color::Magenta);
-            const unsigned int block_size = kTileSize / 8;
+            fallback_img.create(Config::kTileSize, Config::kTileSize, sf::Color::Magenta);
+            const unsigned int block_size = Config::kTileSize / 8;
 
-            for (unsigned int y = 0; y < kTileSize; ++y) {
-                for (unsigned int x = 0; x < kTileSize; ++x) {
+            for (unsigned int y = 0; y < Config::kTileSize; ++y) {
+                for (unsigned int x = 0; x < Config::kTileSize; ++x) {
                     bool is_dark = ((x / block_size) + (y / block_size)) % 2 == 0;
                     sf::Uint8 r = is_dark ? 255 : 0;
                     sf::Uint8 g = 0;

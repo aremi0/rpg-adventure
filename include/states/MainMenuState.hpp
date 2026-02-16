@@ -1,6 +1,7 @@
 #pragma once
 #include "core/State.hpp"
 #include "core/Game.hpp"
+#include "ui/AnimatedBackground.hpp"
 
 class MainMenuState : public State {
     public:
@@ -13,5 +14,9 @@ class MainMenuState : public State {
 
     private:
         GameDataRef data_;
+
+        // --- Variabile per l'animazione del background ---
+        std::unique_ptr<AnimatedBackground> background_;
+
         sf::Sprite test_sprite_;
 };
