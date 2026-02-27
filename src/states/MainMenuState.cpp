@@ -8,10 +8,7 @@
 MainMenuState::MainMenuState(GameDataRef data,  std::string_view state_name) 
     : data_(data), 
     State(state_name),
-    background_(std::make_unique<AnimatedBackground>(data))
-{
-    background_->SetFrameDuration(Config::MainMenu::kFrameDuration);
-}
+    background_(std::make_unique<AnimatedBackground>(data)) {}
 
 void MainMenuState::Init() {
     Logger::Trace("Inizializzazione ({})", this->GetStateName());

@@ -37,8 +37,8 @@ Ho inserito la nuova **Fase 3.5** come richiesto.
 * ✅ **Fase 2: Core Engine & State Machine**
 * ✅ **Fase 3: Resource Management** (Texture & Animations)
 * 🔄 **Fase 3.5: UI, Audio e Menu Completo**
-    * ⬜ **3.5.1: Classe UI Button** (Creazione pulsanti interattivi e centrati).
-    * ⬜ **3.5.2: Gestione Audio** (Aggiornamento AssetManager per SFX e Music).
+    * 🔄 **3.5.1: Classe UI Button** (Creazione pulsanti interattivi e centrati).
+    * 🔄 **3.5.2: Gestione Audio** (Aggiornamento AssetManager per SFX e Music).
     * ⬜ **3.5.3: Settings State** (Nuovo stato per risoluzione e volumi).
     * ⬜ **3.5.4: Assemblaggio Main Menu** (Unire tutto con sfondo, musica e pulsanti).
 

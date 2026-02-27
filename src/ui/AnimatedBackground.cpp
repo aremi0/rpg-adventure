@@ -1,9 +1,10 @@
 #include "ui/AnimatedBackground.hpp"
+#include "core/Constants.hpp"
 #include "core/Game.hpp"
 #include "utils/Logger.hpp"
 
 AnimatedBackground::AnimatedBackground(GameDataRef data) 
-    : data_(data), current_frame_index_(0), animation_timer_(0.0f), frame_duration_(0.1f) {}
+    : data_(data), current_frame_index_(0), animation_timer_(0.0f), frame_duration_(Config::MainMenu::kFrameDuration) {}
 
 void AnimatedBackground::AddFrame(const std::string& texture_name) {
     frames_.push_back(texture_name);
@@ -13,10 +14,6 @@ void AnimatedBackground::AddFrame(const std::string& texture_name) {
         const auto& tex = data_->assets.GetAsset<sf::Texture>(texture_name);
         sprite_.setTexture(tex);
     }
-}
-
-void AnimatedBackground::SetFrameDuration(float duration) {
-    frame_duration_ = duration;
 }
 
 void AnimatedBackground::Update(float dt) {

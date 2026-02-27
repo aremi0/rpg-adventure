@@ -14,7 +14,6 @@ class AnimatedBackground {
         AnimatedBackground(GameDataRef data);
 
         void AddFrame(const std::string& texture_name);
-        void SetFrameDuration(float duration);
 
         void Update(float dt);
         void Draw();
