@@ -1,5 +1,8 @@
 #pragma once
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <stdexcept>
 #include <unordered_map>
 #include <string>
 #include <expected>
@@ -60,6 +63,33 @@ class AssetManager {
             return {};
         }
 
+        // sf::Music non può essere copiato e usa openFromFile, quindi lo gestiamo a parte con unique_ptr
+        std::expected<void, AssetError> LoadMusic(const std::string& name, const std::string& file_path) {
+            if (musics_.contains(name)) {
+                Logger::Warn("Musica '{}' già caricata", name);
+                return std::unexpected(AssetError::AlreadyLoaded);
+            }
+
+            auto music = std::make_unique<sf::Music>();
+            if (!music->openFromFile(file_path)) { // Nota: openFromFile, non loadFromFile
+                Logger::Error("Impossibile aprire la musica '{}' da: {}", name, file_path);
+                return std::unexpected(AssetError::FileNotFound);
+            }
+
+            musics_[name] = std::move(music);
+            Logger::Trace("Musica '{}' caricata con successo da: {}", name, file_path);
+            return {};
+        }
+
+        sf::Music& GetMusic(const std::string& name) {
+            auto it = musics_.find(name);
+            if (it == musics_.end()) {
+                Logger::Error("Musica '{}' non trovata.", name);
+                throw std::runtime_error("Musica mancante: " + name);
+            }
+            return *(it->second); // Dereferenzia il unique_ptr
+        }
+
         template<typename T>
         const T& GetAsset(const std::string& name) const {
             auto& storage = GetStorage<T>();
@@ -85,6 +115,7 @@ class AssetManager {
         auto& GetStorage() {
             if constexpr (std::is_same_v<T, sf::Texture>) return textures_;
             else if constexpr (std::is_same_v<T, sf::Font>) return fonts_;
+            else if constexpr (std::is_same_v<T, sf::SoundBuffer>) return sound_buffers_;
             else static_assert(sizeof(T) == 0, "Tipo di asset non supportato in AssetManager");
         }
 
@@ -92,12 +123,13 @@ class AssetManager {
         const auto& GetStorage() const {
             if constexpr (std::is_same_v<T, sf::Texture>) return textures_;
             else if constexpr (std::is_same_v<T, sf::Font>) return fonts_;
+            else if constexpr (std::is_same_v<T, sf::SoundBuffer>) return sound_buffers_;
             else static_assert(sizeof(T) == 0, "Tipo di asset non supportato in AssetManager");
         }
 
         sf::Texture fallback_texture_;
         std::unordered_map<std::string, sf::Texture> textures_;
         std::unordered_map<std::string, sf::Font> fonts_;
-        //std::unordered_map<std::string, sf::SoundBuffer> sounds_;
-        //std::unordered_map<std::string, sf::Music> musics_;
+        std::unordered_map<std::string, sf::SoundBuffer> sound_buffers_;
+        std::unordered_map<std::string, std::unique_ptr<sf::Music>> musics_;
 };
