@@ -5,9 +5,9 @@
 #include <string>
 
 enum class ButtonState {
-    kIdle,
-    kHover,
-    kPressed
+    Idle,
+    Hover,
+    Pressed
 };
 
 class Button {

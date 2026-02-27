@@ -4,7 +4,7 @@
 Button::Button(float x, float y, float width, float height,
                const sf::Font& font, const std::string& text, unsigned int character_size,
                sf::Color idle_color, sf::Color hover_color, sf::Color active_color)
-    : button_state_(ButtonState::kIdle),
+    : button_state_(ButtonState::Idle),
       idle_color_(idle_color),
       hover_color_(hover_color),
       active_color_(active_color),
@@ -34,29 +34,29 @@ Button::Button(float x, float y, float width, float height,
 
 void Button::Update(const sf::Vector2f& mouse_pos) {
     // 1. Reset stato a Idle
-    button_state_ = ButtonState::kIdle;
+    button_state_ = ButtonState::Idle;
     is_pressed_ = false;
 
     // 2. Controllo Hover (il mouse è sopra il bottone?)
     if (shape_.getGlobalBounds().contains(mouse_pos)) {
-        button_state_ = ButtonState::kHover;
+        button_state_ = ButtonState::Hover;
 
         // 3. Controllo Click (il tasto sinistro è premuto?)
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            button_state_ = ButtonState::kPressed;
+            button_state_ = ButtonState::Pressed;
             is_pressed_ = true;
         }
     }
 
     // 4. Aggiorna il colore in base allo stato
     switch (button_state_) {
-        case ButtonState::kIdle:
+        case ButtonState::Idle:
             shape_.setFillColor(idle_color_);
             break;
-        case ButtonState::kHover:
+        case ButtonState::Hover:
             shape_.setFillColor(hover_color_);
             break;
-        case ButtonState::kPressed:
+        case ButtonState::Pressed:
             shape_.setFillColor(active_color_);
             break;
     }
