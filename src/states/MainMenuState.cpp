@@ -61,7 +61,7 @@ void MainMenuState::Init() {
     }
     
     // ----------------- Loading Game musics
-    auto music_res = data_->assets.LoadAsset<sf::Music>(
+    auto music_res = data_->assets.LoadMusic(
         std::string(Config::Game::kMusicName), 
         std::string(Config::Game::kMusicPath)
     );
