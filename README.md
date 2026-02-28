@@ -33,8 +33,6 @@ You can find detailed documentation in the `doc/` directory:
 
 ### 🗺️ Roadmap Aggiornata
 
-Ho inserito la nuova **Fase 3.5** come richiesto.
-
 * ✅ **Fase 1: Setup dell'Ambiente e Boilerplate**
 * ✅ **Fase 2: Core Engine & State Machine**
     * ✅ **2.1: Logging System, MainMenuState initialization**
