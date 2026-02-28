@@ -31,6 +31,8 @@ Un compendio delle scelte architetturali e delle feature C++ utilizzate nel prog
     *   [6.1 Il paradigma `std::expected` vs Eccezioni](cpp-review/cpp-core/6_gestione_degli_errori_e_tipi_monadici.md#61-il-paradigma-stdexpected-vs-eccezioni)
     *   [6.2 Utilizzo di `std::unexpected`](cpp-review/cpp-core/6_gestione_degli_errori_e_tipi_monadici.md#62-utilizzo-di-stdunexpected)
 
+---
+
 1.  [Il Loop di Gioco](cpp-review/game-design/1_loop_di_gioco.md#1-il-loop-di-gioco)
 2.  [Paradigma ECS (Entity Component System)](cpp-review/game-design/2_paradigma_ecs_entity_component_system.md#2-paradigma-ecs-entity-component-system)
 
