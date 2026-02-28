@@ -21,11 +21,12 @@ You can find detailed documentation in the `doc/` directory:
 
 ---
 
-*   [Project Overview](doc/core/0_structure_and_roadmap.md): Explains the project overview.
-*   [Project Configuration & Setup](doc/core/1_project_setup.md): Explains the `.vscode` configuration and `CMakeLists.txt` file structure.
-*   [Core Engine & State Machine](doc/core/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
-*   [Core Engine & State Machine](doc/core/2_1_logging_and_menu_state.md): Explains the logging system and the menu state.
-*   [Resource Management](doc/core/3_resource_managment.md): Explains the resource management system.
+*   [0. Project Overview](doc/core/0_structure_and_roadmap.md): Explains the project overview.
+*   [1. Project Configuration & Setup](doc/core/1_project_setup.md): Explains the `.vscode` configuration and `CMakeLists.txt` file structure.
+*   [2. Core Engine & State Machine](doc/core/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
+*   [2.1 Core Engine & State Machine](doc/core/2_1_logging_and_menu_state.md): Explains the logging system and the menu state.
+*   [3. Resource Management](doc/core/3_resource_managment.md): Explains the resource management system.
+*   [3.5 Main Menu & Settings](doc/core/3_5_main_menu_settings_core.md): Explains the main menu and settings.
 
 ---
 
@@ -48,3 +49,5 @@ Ho inserito la nuova **Fase 3.5** come richiesto.
 * ⬜ **Fase 7: RPG Logic & UI**
 
 ---
+
+<img src="doc/screen.png" alt="screen" width="400">
