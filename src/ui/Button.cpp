@@ -95,3 +95,10 @@ void Button::SetColors(sf::Color idle, sf::Color hover, sf::Color active) {
     active_color_ = active;
     shape_.setFillColor(idle); // Applica subito il colore idle
 }
+
+void Button::Reset() {
+    is_pressed_ = false;
+    last_mouse_pressed_ = false;
+    button_state_ = ButtonState::Idle;
+    shape_.setFillColor(idle_color_);
+}

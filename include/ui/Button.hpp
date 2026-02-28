@@ -29,6 +29,7 @@ class Button {
         void SetText(const std::string& text); // Imposta il testo del bottone
         void SetVolume(float volume); // Imposta il volume dei suoni hover/click
         void SetColors(sf::Color idle, sf::Color hover, sf::Color active); // Cambia i colori del bottone
+        void Reset(); // Resetta lo stato interno del bottone (utile quando viene disabilitato)
 
     private:
         ButtonState button_state_;

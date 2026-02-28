@@ -172,6 +172,8 @@ void SettingsState::Update(float dt) {
     // Se la risoluzione selezionata è diversa da quella attuale, la label diventa interattiva
     if (selected_res_index_ != data_->resolution_index) {
         res_row_.label->Update(mouse_pos);
+    } else {
+        res_row_.label->Reset(); // Pulisce lo stato quando inattivo per evitare click intrappolati
     }
     back_button_->Update(mouse_pos);
 
