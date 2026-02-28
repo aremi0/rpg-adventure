@@ -23,33 +23,29 @@ Button::Button(float x, float y, float width, float height,
 }
 
 void Button::Update(const sf::Vector2f& mouse_pos) {
-    // 1. Reset stato a Idle
-    button_state_ = ButtonState::Idle;
-    is_pressed_ = false;
+    bool current_mouse_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    is_pressed_ = false; // Resettiamo il flag "Azione" ogni frame
 
-    // 2. Controllo Hover (il mouse è sopra il bottone?)
     if (shape_.getGlobalBounds().contains(mouse_pos)) {
-        button_state_ = ButtonState::Hover;
+        // Se il mouse è sopra, decidiamo se colorarlo di Hover o Pressed
+        button_state_ = current_mouse_down ? ButtonState::Pressed : ButtonState::Hover;
 
-        // 3. Controllo Click (il tasto sinistro è premuto?)
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-            button_state_ = ButtonState::Pressed;
+        // Se il tasto sinistro è premuto e non era premuto l'ultima volta, consideriamo un click
+        if (current_mouse_down && !last_mouse_pressed_) {
             is_pressed_ = true;
         }
+    } else {
+        button_state_ = ButtonState::Idle;
     }
 
-    // 4. Aggiorna il colore in base allo stato
+    // Aggiorniamo i colori
     switch (button_state_) {
-        case ButtonState::Idle:
-            shape_.setFillColor(idle_color_);
-            break;
-        case ButtonState::Hover:
-            shape_.setFillColor(hover_color_);
-            break;
-        case ButtonState::Pressed:
-            shape_.setFillColor(active_color_);
-            break;
+        case ButtonState::Idle:    shape_.setFillColor(idle_color_); break;
+        case ButtonState::Hover:   shape_.setFillColor(hover_color_); break;
+        case ButtonState::Pressed: shape_.setFillColor(active_color_); break;
     }
+
+    last_mouse_pressed_ = current_mouse_down;
 }
 
 void Button::Render(sf::RenderTarget& target) {

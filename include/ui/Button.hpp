@@ -32,5 +32,7 @@ class Button {
         sf::Color hover_color_;
         sf::Color active_color_;
 
-        bool is_pressed_; // Flag per evitare click multipli tenendo premuto
+        // Flags per evitare click multipli tenendo premuto
+        bool is_pressed_;
+        bool last_mouse_pressed_;
 };
