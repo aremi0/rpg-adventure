@@ -39,6 +39,24 @@ void SettingsState::Init() {
             Config::Settings::kBackgroundName, Config::Settings::kBackgroundPath);
     } */
     
+    // ----------------- Loading Game sounds
+    auto hover_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonHoverSfxName), 
+        std::string(Config::Game::kButtonHoverSfxPath)
+    );
+    auto click_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonClickSfxName), 
+        std::string(Config::Game::kButtonClickSfxPath)
+    );
+
+    // Puntatori: nullptr se il caricamento è fallito, altrimenti puntano al buffer
+    const sf::SoundBuffer* hover_sfx = hover_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonHoverSfxName)) 
+        : nullptr;
+    const sf::SoundBuffer* click_sfx = click_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonClickSfxName)) 
+        : nullptr;
+
     // ----------------- Creating Settings buttons
     const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
 
@@ -56,21 +74,24 @@ void SettingsState::Init() {
     res_button_ = std::make_unique<Button>(
         center_x, start_y, 300.0f, 50.0f, 
         font, std::format("Risoluzione: {}x{}", supported_resolutions_[res_index_].width, supported_resolutions_[res_index_].height),
-        24, idle_col, hover_col, active_col
+        24, idle_col, hover_col, active_col,
+        hover_sfx, click_sfx
     );
 
     // Bottone Volume
     vol_button_ = std::make_unique<Button>(
         center_x, start_y + spacing, 300.0f, 50.0f, 
         font, std::format("Volume: {}%", volume_level_),
-        24, idle_col, hover_col, active_col
+        24, idle_col, hover_col, active_col,
+        hover_sfx, click_sfx
     );
 
     // Bottone Indietro
     back_button_ = std::make_unique<Button>(
         center_x, start_y + spacing * 2, 300.0f, 50.0f, 
         font, "Indietro", 24, 
-        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Rosso per spiccare
+        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30), // Rosso per spiccare
+        hover_sfx, click_sfx
     );
 }
 

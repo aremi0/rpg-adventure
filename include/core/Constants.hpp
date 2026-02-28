@@ -17,8 +17,15 @@ namespace Config {
         inline constexpr std::string_view kMusicName = "menu_music";
         inline constexpr std::string_view kMusicPath = "assets/audio/menu_music.mp3";
 
-        // inline constexpr std::string_view kSoundName = "button_click";
-        // inline constexpr std::string_view kSoundPath = "assets/audio/button_click.wav";
+        inline constexpr std::string_view kButtonHoverSfxName = "button_hover";
+        inline constexpr std::string_view kButtonHoverSfxPath = "assets/audio/gui-wav/button_hover.wav";
+
+        inline constexpr std::string_view kButtonClickSfxName = "button_click";
+        inline constexpr std::string_view kButtonClickSfxPath = "assets/audio/gui-wav/button_click.wav";
+
+        // Warmup OpenAL: riproduce un suono silenzioso all'avvio per pre-inizializzare il driver audio
+        // ed eliminare il ritardo (~100ms) alla prima riproduzione. Disattivare se non necessario.
+        inline constexpr bool kAudioWarmup = true;
     }
 
     namespace Graphics {

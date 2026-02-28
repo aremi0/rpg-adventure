@@ -72,6 +72,23 @@ void MainMenuState::Init() {
         music.play();
     }
 
+    // ----------------- Loading Game sounds
+    auto hover_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonHoverSfxName), 
+        std::string(Config::Game::kButtonHoverSfxPath)
+    );
+    auto click_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonClickSfxName), 
+        std::string(Config::Game::kButtonClickSfxPath)
+    );
+    // Puntatori: nullptr se il caricamento è fallito, altrimenti puntano al buffer
+    const sf::SoundBuffer* hover_sfx = hover_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonHoverSfxName)) 
+        : nullptr;
+    const sf::SoundBuffer* click_sfx = click_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonClickSfxName)) 
+        : nullptr;
+
     // ----------------- Creating MainMenu buttons
     const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
 
@@ -86,18 +103,23 @@ void MainMenuState::Init() {
 
     play_button_ = std::make_unique<Button>(
         center_x, start_y, 300.0f, 50.0f,
-        font, "Nuova Partita", 24, idle_col, hover_col, active_col
+        font, "Nuova Partita", 24, 
+        idle_col, hover_col, active_col,
+        hover_sfx, click_sfx
     );
 
     settings_button_ = std::make_unique<Button>(
         center_x, start_y + spacing, 300.0f, 50.0f,
-        font, "Impostazioni", 24, idle_col, hover_col, active_col
+        font, "Impostazioni", 24, 
+        idle_col, hover_col, active_col,
+        hover_sfx, click_sfx
     );
 
     exit_button_ = std::make_unique<Button>(
         center_x, start_y + spacing * 2, 300.0f, 50.0f,
         font, "Esci", 24, 
-        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Tonalità di rosso
+        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30), // Tonalità di rosso
+        hover_sfx, click_sfx
     );
 }
 
