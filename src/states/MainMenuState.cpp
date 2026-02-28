@@ -49,7 +49,7 @@ void MainMenuState::Init() {
     }
 
     // 2. Adatto background alla finestra
-    background_->Resize(data_->window.getSize());
+    background_->Resize(sf::Vector2u(Config::Game::kWindowWidth, Config::Game::kWindowHeight));
 
     // ----------------- Loading Game fonts
     auto font_res = data_->assets.LoadAsset<sf::Font>(

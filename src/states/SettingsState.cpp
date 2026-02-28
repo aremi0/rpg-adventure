@@ -49,24 +49,26 @@ void SettingsState::Init() {
 
     // Centro della finestra per allineare i bottoni
     float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 è metà della larghezza del bottone
+    float start_y = 250.0f;
+    float spacing = 80.0f;
 
-// Bottone Risoluzione
+    // Bottone Risoluzione
     res_button_ = std::make_unique<Button>(
-        center_x, 200.0f, 300.0f, 50.0f, 
+        center_x, start_y, 300.0f, 50.0f, 
         font, std::format("Risoluzione: {}x{}", supported_resolutions_[res_index_].width, supported_resolutions_[res_index_].height),
         24, idle_col, hover_col, active_col
     );
 
     // Bottone Volume
     vol_button_ = std::make_unique<Button>(
-        center_x, 300.0f, 300.0f, 50.0f, 
+        center_x, start_y + spacing, 300.0f, 50.0f, 
         font, std::format("Volume: {}%", volume_level_),
         24, idle_col, hover_col, active_col
     );
 
     // Bottone Indietro
     back_button_ = std::make_unique<Button>(
-        center_x, 450.0f, 300.0f, 50.0f, 
+        center_x, start_y + spacing * 2, 300.0f, 50.0f, 
         font, "Indietro", 24, 
         sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Rosso per spiccare
     );
@@ -110,8 +112,11 @@ void SettingsState::Update(float dt) {
 }
 
 void SettingsState::Draw() {
-    // Disegniamo uno sfondo semi-trasparente per far capire che il main menu è sotto
-    sf:: RectangleShape overlay(sf::Vector2f(data_->window.getSize().x, data_->window.getSize().y));
+    // Usiamo le costanti della Risoluzione Logica invece della grandezza fisica della finestra
+    sf::RectangleShape overlay(sf::Vector2f(
+        static_cast<float>(Config::Game::kWindowWidth), 
+        static_cast<float>(Config::Game::kWindowHeight)
+    ));
     overlay.setFillColor(sf::Color(0, 0, 0, 200));
     data_->window.draw(overlay);
 
@@ -140,6 +145,10 @@ void SettingsState::CycleResolution() {
 
     // Ricrea la finestra con la nuova risoluzione
     data_->window.create(new_mode, std::string(Config::Game::kWindowName));
+
+    sf::View view(sf::FloatRect(0, 0, Config::Game::kWindowWidth, Config::Game::kWindowHeight));
+    data_->window.setView(view);
+
     Logger::Info("Risoluzione impostata a: {}x{}", new_mode.width, new_mode.height);
     res_button_->SetText(std::format("Risoluzione: {}x{}", new_mode.width, new_mode.height));
 }
