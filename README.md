@@ -36,6 +36,7 @@ Ho inserito la nuova **Fase 3.5** come richiesto.
 
 * ✅ **Fase 1: Setup dell'Ambiente e Boilerplate**
 * ✅ **Fase 2: Core Engine & State Machine**
+    * ✅ **2.1: Core Engine & State Machine, Logging System**
 * ✅ **Fase 3: Resource Management** (Texture & Animations)
 * ✅ **Fase 3.5: UI, Audio e Menu Completo**
     * ✅ **3.5.1: Classe UI Button** (Creazione pulsanti interattivi e centrati).
@@ -44,6 +45,11 @@ Ho inserito la nuova **Fase 3.5** come richiesto.
     * ✅ **3.5.4: Assemblaggio Main Menu** (Unire tutto con sfondo, musica e pulsanti).
 
 * 🔄 **Fase 4: Integrazione ECS (EnTT)**
+    * 🔄 **4.1: Registry Setup** (Integrazione del database EnTT nel core dell'engine).
+    * ⬜ **4.2: Base Component** (Creazione delle prime struct struct POD come Transform e Sprite).
+    * ⬜ **4.3: Render System** (Creazione del sistema che disegna in automatico le entità).
+    * ⬜ **4.4: Game State & First Entoty** (Avvio della partita dal menu e spawn visivo a schermo).
+
 * ⬜ **Fase 5: Input & Movimento**
 * ⬜ **Fase 6: Tilemap & Collisioni**
 * ⬜ **Fase 7: RPG Logic & UI**

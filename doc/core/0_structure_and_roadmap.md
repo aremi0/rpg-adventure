@@ -11,6 +11,7 @@ Ti consiglio di mantenere una struttura speculare tra `include` e `src`. Se hai 
 │   ├── components/          # Se usi ECS (Position, Velocity, Sprite)
 │   ├── map/                 # Gestione Tilemap e Collisioni
 │   ├── resources/           # Resource Holder/Manager
+│   ├── ui/                  # Interfaccia utente (HUD, Menu)
 │   └── utils/               # Funzioni matematiche, Logger, Costanti
 ├── src/                     # File sorgente (.cpp)
 │   ├── core/                # Implementazione logica engine
@@ -73,6 +74,7 @@ Qui definisci cosa "esiste" nel mondo.
 
 3. **Fase 3: Resource Management**
 * Creazione di un gestore centralizzato per Texture, Sound e Font (usando `std::expected` di C++23).
+* Creazione del menu principale.
 
 
 4. **Fase 4: Integrazione ECS (EnTT)**
