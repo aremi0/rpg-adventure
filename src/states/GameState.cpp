@@ -46,7 +46,7 @@ void GameState::Init() {
         Config::Game::kWindowHeight / 2.0f
     );
     transform.elevation = 0.0f;
-    transform.scale = sf::Vector2f(2.0f, 2.0f); // Lo facciamo un po' più grande
+    transform.scale = sf::Vector2f(1.0f, 1.0f); // Lo facciamo un po' più grande
 
     // Aggiungiamo lo Sprite
     auto& sprite_comp = data_->registry.emplace<SpriteComponent>(hero_);

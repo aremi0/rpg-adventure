@@ -13,7 +13,6 @@
 enum class AssetError {
     FileNotFound,
     CorruptedFile,
-    AlreadyLoaded,
 };
 
 class AssetManager {
@@ -48,8 +47,8 @@ class AssetManager {
         std::expected<void, AssetError> LoadAsset(const std::string& name, const std::string& file_path) {
             // Se l'asset esiste già, non caricarlo
             if (GetStorage<T>().contains(name)) {
-                Logger::Trace("Asset '{}' già caricato", name);
-                return std::unexpected(AssetError::AlreadyLoaded);
+                Logger::Trace("Asset '{}' già in memoria. Ricaricamento saltato.", name);
+                return {};
             }
 
             T asset;
@@ -66,8 +65,8 @@ class AssetManager {
         // sf::Music non può essere copiato e usa openFromFile, quindi lo gestiamo a parte con unique_ptr
         std::expected<void, AssetError> LoadMusic(const std::string& name, const std::string& file_path) {
             if (musics_.contains(name)) {
-                Logger::Trace("Musica '{}' già caricata", name);
-                return std::unexpected(AssetError::AlreadyLoaded);
+                Logger::Trace("Musica '{}' già in memoria. Ricaricamento saltato.", name);
+                return {};
             }
 
             auto music = std::make_unique<sf::Music>();
