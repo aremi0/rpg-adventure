@@ -8,10 +8,10 @@
 #include <SFML/Audio.hpp>
 
 SettingsState::SettingsState(GameDataRef data)
-    : State("SettingsState"), data_(data), volume_level_(Config::Settings::kMaxVolume), res_index_(0) {
+    : State("SettingsState"), data_(data), volume_level_(Config::Settings::kMaxVolume), res_index_(1) {
         supported_resolutions_ = {
+            sf::VideoMode(800, 600),
             sf::VideoMode(Config::Game::kWindowWidth, Config::Game::kWindowHeight),
-            sf::VideoMode(1024, 768),
             sf::VideoMode(1280, 720)
         };
     }
@@ -42,11 +42,6 @@ void SettingsState::Init() {
     // ----------------- Creating Settings buttons
     const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
 
-    // Colori per i bottoni
-    sf::Color idle_col(70, 70, 70);
-    sf::Color hover_col(100, 100, 100);
-    sf::Color active_col(40, 40, 40);
-
     // Centro della finestra per allineare i bottoni
     float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 è metà della larghezza del bottone
     float start_y = 250.0f;
@@ -54,23 +49,28 @@ void SettingsState::Init() {
 
     // Bottone Risoluzione
     res_button_ = std::make_unique<Button>(
-        center_x, start_y, 300.0f, 50.0f, 
-        font, std::format("Risoluzione: {}x{}", supported_resolutions_[res_index_].width, supported_resolutions_[res_index_].height),
-        24, idle_col, hover_col, active_col
+        center_x, start_y, 300.0f, 50.0f, font, 
+        std::format("{}: {}x{}", 
+                    Config::Settings::kRisoluzioneName, 
+                    supported_resolutions_[res_index_].width, 
+                    supported_resolutions_[res_index_].height),
+        24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
     );
 
     // Bottone Volume
     vol_button_ = std::make_unique<Button>(
-        center_x, start_y + spacing, 300.0f, 50.0f, 
-        font, std::format("Volume: {}%", volume_level_),
-        24, idle_col, hover_col, active_col
+        center_x, start_y + spacing, 300.0f, 50.0f, font, 
+        std::format("{}: {}%", 
+                    Config::Settings::kVolumeName, 
+                    volume_level_),
+        24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
     );
 
     // Bottone Indietro
     back_button_ = std::make_unique<Button>(
-        center_x, start_y + spacing * 2, 300.0f, 50.0f, 
-        font, "Indietro", 24, 
-        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Rosso per spiccare
+        center_x, start_y + spacing * 2, 300.0f, 50.0f, font, 
+        std::format("{}", Config::Settings::kIndietroName), 24, 
+        Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol
     );
 }
 
@@ -136,7 +136,9 @@ void SettingsState::CycleVolume() {
     sf::Listener::setGlobalVolume(static_cast<float>(volume_level_));
     Logger::Info("Volume impostato a: {}%", volume_level_);
 
-    vol_button_->SetText(std::format("Volume: {}%", volume_level_));
+    vol_button_->SetText(std::format("{}: {}%", 
+        Config::Settings::kVolumeName, 
+        volume_level_));
 }
 
 void SettingsState::CycleResolution() {
@@ -150,5 +152,8 @@ void SettingsState::CycleResolution() {
     data_->window.setView(view);
 
     Logger::Info("Risoluzione impostata a: {}x{}", new_mode.width, new_mode.height);
-    res_button_->SetText(std::format("Risoluzione: {}x{}", new_mode.width, new_mode.height));
+    res_button_->SetText(std::format("{}: {}x{}", 
+        Config::Settings::kRisoluzioneName, 
+        new_mode.width, 
+        new_mode.height));
 }

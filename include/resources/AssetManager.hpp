@@ -21,11 +21,11 @@ class AssetManager {
         AssetManager() {
             // Creazione texture di fallback (scacchiera viola/nera a blocchi)
             sf::Image fallback_img;
-            fallback_img.create(Config::Graphics::kTileSize, Config::Graphics::kTileSize, sf::Color::Magenta);
-            const unsigned int block_size = Config::Graphics::kTileSize / 8;
+            fallback_img.create(Config::Game::Textures::kTileSize, Config::Game::Textures::kTileSize, sf::Color::Magenta);
+            const unsigned int block_size = Config::Game::Textures::kTileSize / 8;
 
-            for (unsigned int y = 0; y < Config::Graphics::kTileSize; ++y) {
-                for (unsigned int x = 0; x < Config::Graphics::kTileSize; ++x) {
+            for (unsigned int y = 0; y < Config::Game::Textures::kTileSize; ++y) {
+                for (unsigned int x = 0; x < Config::Game::Textures::kTileSize; ++x) {
                     bool is_dark = ((x / block_size) + (y / block_size)) % 2 == 0;
                     sf::Uint8 r = is_dark ? 255 : 0;
                     sf::Uint8 g = 0;
@@ -48,7 +48,7 @@ class AssetManager {
         std::expected<void, AssetError> LoadAsset(const std::string& name, const std::string& file_path) {
             // Se l'asset esiste già, non caricarlo
             if (GetStorage<T>().contains(name)) {
-                Logger::Warn("Asset '{}' già caricato", name);
+                Logger::Trace("Asset '{}' già caricato", name);
                 return std::unexpected(AssetError::AlreadyLoaded);
             }
 
@@ -66,7 +66,7 @@ class AssetManager {
         // sf::Music non può essere copiato e usa openFromFile, quindi lo gestiamo a parte con unique_ptr
         std::expected<void, AssetError> LoadMusic(const std::string& name, const std::string& file_path) {
             if (musics_.contains(name)) {
-                Logger::Warn("Musica '{}' già caricata", name);
+                Logger::Trace("Musica '{}' già caricata", name);
                 return std::unexpected(AssetError::AlreadyLoaded);
             }
 

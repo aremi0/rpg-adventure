@@ -11,6 +11,7 @@ class StateMachine {
 
         std::unique_ptr<State>& GetActiveState();
         const std::vector<std::unique_ptr<State>>& GetStates() const;
+        bool IsEmpty() const { return states_.empty(); }
 
         void Draw(); // Disegna tutti gli State nello stack
 

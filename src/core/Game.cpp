@@ -29,6 +29,12 @@ void Game::Run() {
         // Gestione cambi di stato
         data_->machine.ProcessStateChanges();
 
+        if (data_->machine.IsEmpty()) {
+            Logger::Warn("Tutti gli stati sono stati rimossi. Chiudo il gioco.");
+            data_->window.close();
+            break;
+        }
+
         new_time = clock_.getElapsedTime().asSeconds();
         frame_time = new_time - current_time;
 

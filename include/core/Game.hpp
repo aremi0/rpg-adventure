@@ -3,11 +3,13 @@
 #include "StateMachine.hpp"
 #include "resources/AssetManager.hpp"
 #include <string>
+#include <entt/entt.hpp>
 
 struct GameData {
     sf::RenderWindow window;
     StateMachine machine;
     AssetManager assets;
+    entt::registry registry;
     // Qui aggiungeremo in futuro AssetManager e InputManager
 };
 

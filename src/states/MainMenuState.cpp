@@ -1,4 +1,5 @@
 #include "states/MainMenuState.hpp"
+#include "states/GameState.hpp"
 #include "states/SettingsState.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
@@ -43,22 +44,11 @@ void MainMenuState::Init() {
         // Se ha successo, la texture è nel manager e possiamo aggiungere il NOME al background.
         if (bg_frame_result) {
             background_->AddFrame(texture_name);
-        } else {
-            Logger::Error("Errore caricamento frame sfondo: {}", texture_name);
         }
     }
 
     // 2. Adatto background alla finestra
     background_->Resize(sf::Vector2u(Config::Game::kWindowWidth, Config::Game::kWindowHeight));
-
-    // ----------------- Loading Game fonts
-    auto font_res = data_->assets.LoadAsset<sf::Font>(
-        std::string(Config::Game::kFontName), 
-        std::string(Config::Game::kFontPath)
-    );
-    if (!font_res) {
-        Logger::Error("Errore caricamento font '{}' da: {}", Config::Game::kFontName, Config::Game::kFontPath);
-    }
     
     // ----------------- Loading Game musics
     auto music_res = data_->assets.LoadMusic(
@@ -73,32 +63,37 @@ void MainMenuState::Init() {
     }
 
     // ----------------- Creating MainMenu buttons
-    const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
-
-    sf::Color idle_col(70, 70, 70);
-    sf::Color hover_col(100, 100, 100);
-    sf::Color active_col(40, 40, 40);
-    
-    // Posizionamento dinamico in base alla finestra
-    float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 = metà di 300 (larghezza)
-    float start_y = 250.0f;
-    float spacing = 80.0f;
-
-    play_button_ = std::make_unique<Button>(
-        center_x, start_y, 300.0f, 50.0f,
-        font, "Nuova Partita", 24, idle_col, hover_col, active_col
+    // ----------------- Loading Game fonts
+    auto font_res = data_->assets.LoadAsset<sf::Font>(
+        std::string(Config::Game::kFontName), 
+        std::string(Config::Game::kFontPath)
     );
+    if (font_res) {
+        const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
+        
+        // Posizionamento dinamico in base alla finestra
+        float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 = metà di 300 (larghezza)
+        float start_y = 250.0f;
+        float spacing = 80.0f;
 
-    settings_button_ = std::make_unique<Button>(
-        center_x, start_y + spacing, 300.0f, 50.0f,
-        font, "Impostazioni", 24, idle_col, hover_col, active_col
-    );
+        play_button_ = std::make_unique<Button>(
+            center_x, start_y, 300.0f, 50.0f,
+            font, std::string(Config::MainMenu::kNuovaPartitaName), 
+            24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+        );
 
-    exit_button_ = std::make_unique<Button>(
-        center_x, start_y + spacing * 2, 300.0f, 50.0f,
-        font, "Esci", 24, 
-        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Tonalità di rosso
-    );
+        settings_button_ = std::make_unique<Button>(
+            center_x, start_y + spacing, 300.0f, 50.0f,
+            font, std::string(Config::MainMenu::kImpostazioniName), 
+            24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+        );
+
+        exit_button_ = std::make_unique<Button>(
+            center_x, start_y + spacing * 2, 300.0f, 50.0f,
+            font, std::string(Config::MainMenu::kEsciName), 
+            24, Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol
+        );
+    }
 }
 
 void MainMenuState::HandleInput() {
@@ -126,9 +121,9 @@ void MainMenuState::Update(float dt) {
 
     // Logica dei Click
     if (play_button_->IsPressed()) {
-        Logger::Info("Avvio Nuova Partita... (Da implementare)");
+        Logger::Info("Avvio Nuova Partita...");
         // Qui in futuro metteremo: 
-        // data_->machine.AddState(std::make_unique<GameState>(data_), true); // is_replacing = true
+        data_->machine.AddState(std::make_unique<GameState>(data_), true);
     }
 
     if (settings_button_->IsPressed()) {
@@ -139,7 +134,7 @@ void MainMenuState::Update(float dt) {
 
     if (exit_button_->IsPressed()) {
         Logger::Info("Uscita dal gioco in corso.");
-        data_->window.close();
+        data_->machine.RemoveState();
     }
 }
 
