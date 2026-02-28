@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <stack>
+#include <vector>
 #include "State.hpp"
 
 class StateMachine {
@@ -11,8 +11,10 @@ class StateMachine {
 
         std::unique_ptr<State>& GetActiveState();
 
+        void Draw(); // Disegna tutti gli State nello stack
+
     private:
-        std::stack<std::unique_ptr<State>> states_;
+        std::vector<std::unique_ptr<State>> states_;
         std::unique_ptr<State> new_state_;
 
         bool is_removing_ = false;

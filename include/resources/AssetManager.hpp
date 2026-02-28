@@ -21,11 +21,11 @@ class AssetManager {
         AssetManager() {
             // Creazione texture di fallback (scacchiera viola/nera a blocchi)
             sf::Image fallback_img;
-            fallback_img.create(Config::kTileSize, Config::kTileSize, sf::Color::Magenta);
-            const unsigned int block_size = Config::kTileSize / 8;
+            fallback_img.create(Config::Graphics::kTileSize, Config::Graphics::kTileSize, sf::Color::Magenta);
+            const unsigned int block_size = Config::Graphics::kTileSize / 8;
 
-            for (unsigned int y = 0; y < Config::kTileSize; ++y) {
-                for (unsigned int x = 0; x < Config::kTileSize; ++x) {
+            for (unsigned int y = 0; y < Config::Graphics::kTileSize; ++y) {
+                for (unsigned int x = 0; x < Config::Graphics::kTileSize; ++x) {
                     bool is_dark = ((x / block_size) + (y / block_size)) % 2 == 0;
                     sf::Uint8 r = is_dark ? 255 : 0;
                     sf::Uint8 g = 0;

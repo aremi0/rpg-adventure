@@ -15,7 +15,7 @@ using GameDataRef = std::shared_ptr<GameData>;
 
 class Game {
     public:
-        Game(int width, int height, std::string title);
+        Game();
 
     private:
         static constexpr float kDeltaTime = 1.0f / 60.0f; // Clock fisso a 60 FPS per la logica

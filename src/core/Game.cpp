@@ -2,11 +2,18 @@
 #include "states/MainMenuState.hpp"
 #include "utils/Logger.hpp"
 
-Game::Game(int width, int height, std::string title) : data_(std::make_shared<GameData>()) {
-    data_->window.create(sf::VideoMode({static_cast<unsigned>(width), static_cast<unsigned>(height)}), title);
+Game::Game() : data_(std::make_shared<GameData>()) {
+    // Crea la finestra di gioco
+    data_->window.create(
+        sf::VideoMode(
+            {
+                static_cast<unsigned>(Config::Game::kWindowWidth), 
+                static_cast<unsigned>(Config::Game::kWindowHeight)
+            }), 
+        std::string(Config::Game::kWindowName));
     
     // Qui in futuro caricheremo lo stato iniziale (es. MenuState)
-    data_->machine.AddState(std::make_unique<MainMenuState>(data_, "Main Menu"));
+    data_->machine.AddState(std::make_unique<MainMenuState>(data_));
     data_->machine.ProcessStateChanges();
     Logger::Debug("Stato iniziale caricato: ({})", data_->machine.GetActiveState()->GetStateName());
 
@@ -40,7 +47,7 @@ void Game::Run() {
 
         // Render
         data_->window.clear();
-        data_->machine.GetActiveState()->Draw();
+        data_->machine.Draw();
         data_->window.display();
     }
 }

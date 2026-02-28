@@ -1,55 +1,104 @@
 #include "states/MainMenuState.hpp"
+#include "states/SettingsState.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <format>
 
-MainMenuState::MainMenuState(GameDataRef data,  std::string_view state_name) 
-    : data_(data), 
-    State(state_name),
+MainMenuState::MainMenuState(GameDataRef data) 
+    : State("MainMenuState"),
+    data_(data),
     background_(std::make_unique<AnimatedBackground>(data)) {}
 
 void MainMenuState::Init() {
     Logger::Trace("Inizializzazione ({})", this->GetStateName());
 
     // 1. Provo a caricare una texture che non esiste (Test Fallback)
-    auto result = data_->assets.LoadAsset<sf::Texture>("hero_sprite", "assets/textures/non_esiste.png");
-    if (!result) {
-        Logger::Error("Caricamento fallito come previsto (Test Fallback). Errore: {}", static_cast<int>(result.error()));
+    auto texture_error_test = data_->assets.LoadAsset<sf::Texture>("hero_sprite", "assets/textures/non_esiste.png");
+    if (!texture_error_test) {
+        Logger::Error("Caricamento fallito come previsto (Test Fallback). Errore: {}", static_cast<int>(texture_error_test.error()));
     }
 
     // 2. Recupero la texture (dovrebbe restituire quella viola/nera a scacchi)
-    const sf::Texture& tex = data_->assets.GetAsset<sf::Texture>("hero_sprite");
+    const sf::Texture& fallback_texture_test = data_->assets.GetAsset<sf::Texture>("hero_sprite");
 
     // 3. Configuro uno sprite di test per vederla
-    test_sprite_.setTexture(tex);
+    test_sprite_.setTexture(fallback_texture_test);
     test_sprite_.setPosition(100, 100);
     test_sprite_.setScale(2.0f, 2.0f);
 
-    // ----------------- Background
-
+    // ----------------- Loading MainMenu background frames
     // 1. Carico i frame del background
     for (int i = 0; i < Config::MainMenu::kBackgroundFrames; ++i) {
         // Genera i nomi
-        std::string texture_name = std::format("frame_{}", i);
-        std::string file_path = std::format("assets/textures/main_menu/{}.png", texture_name);
+        std::string texture_name = std::format("{}{}", Config::MainMenu::kBackgroundFrameName, i);
+        std::string file_path = std::format("{}{}.png", Config::MainMenu::kBackgroundFramePath, texture_name);
 
-        // Carica
-        auto res = data_->assets.LoadAsset<sf::Texture>(texture_name, file_path);
+        // Carica i frame
+        auto bg_frame_result = data_->assets.LoadAsset<sf::Texture>(texture_name, file_path);
         
         // Aggiungi al background (AnimatedBackground gestisce internamente se la texture è valida)
         // Nota: LoadAsset ritorna void se successo, o errore. 
         // Se ha successo, la texture è nel manager e possiamo aggiungere il NOME al background.
-        if (res) {
+        if (bg_frame_result) {
             background_->AddFrame(texture_name);
         } else {
             Logger::Error("Errore caricamento frame sfondo: {}", texture_name);
         }
     }
 
-    // Adatta alla finestra
+    // 2. Adatto background alla finestra
     background_->Resize(data_->window.getSize());
+
+    // ----------------- Loading Game fonts
+    auto font_res = data_->assets.LoadAsset<sf::Font>(
+        std::string(Config::Game::kFontName), 
+        std::string(Config::Game::kFontPath)
+    );
+    if (!font_res) {
+        Logger::Error("Errore caricamento font '{}' da: {}", Config::Game::kFontName, Config::Game::kFontPath);
+    }
+    
+    // ----------------- Loading Game musics
+    auto music_res = data_->assets.LoadAsset<sf::Music>(
+        std::string(Config::Game::kMusicName), 
+        std::string(Config::Game::kMusicPath)
+    );
+    if (music_res) {
+        sf::Music& music = data_->assets.GetMusic(std::string(Config::Game::kMusicName));
+        music.setLoop(true);
+        music.setVolume(static_cast<float>(Config::Settings::kMusicVolume));
+        music.play();
+    }
+
+    // ----------------- Creating MainMenu buttons
+    const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
+
+    sf::Color idle_col(70, 70, 70);
+    sf::Color hover_col(100, 100, 100);
+    sf::Color active_col(40, 40, 40);
+    
+    // Posizionamento dinamico in base alla finestra
+    float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 = metà di 300 (larghezza)
+    float start_y = 250.0f;
+    float spacing = 80.0f;
+
+    play_button_ = std::make_unique<Button>(
+        center_x, start_y, 300.0f, 50.0f,
+        font, "Nuova Partita", 24, idle_col, hover_col, active_col
+    );
+
+    settings_button_ = std::make_unique<Button>(
+        center_x, start_y + spacing, 300.0f, 50.0f,
+        font, "Impostazioni", 24, idle_col, hover_col, active_col
+    );
+
+    exit_button_ = std::make_unique<Button>(
+        center_x, start_y + spacing * 2, 300.0f, 50.0f,
+        font, "Esci", 24, 
+        sf::Color(150, 50, 50), sf::Color(200, 70, 70), sf::Color(100, 30, 30) // Tonalità di rosso
+    );
 }
 
 void MainMenuState::HandleInput() {
@@ -68,11 +117,40 @@ void MainMenuState::HandleInput() {
 
 void MainMenuState::Update(float dt) {
     background_->Update(dt);
+
+    // Mappiamo le coordinate del mouse rispetto alla finestra
+    sf::Vector2f mouse_pos = data_->window.mapPixelToCoords(sf::Mouse::getPosition(data_->window));
+
+    // Aggiorniamo lo stato dei bottoni
+    play_button_->Update(mouse_pos);
+    settings_button_->Update(mouse_pos);
+    exit_button_->Update(mouse_pos);
+
+    // Logica dei Click
+    if (play_button_->IsPressed()) {
+        Logger::Info("Avvio Nuova Partita... (Da implementare)");
+        // Qui in futuro metteremo: 
+        // data_->machine.AddState(std::make_unique<GameState>(data_), true); // is_replacing = true
+    }
+
+    if (settings_button_->IsPressed()) {
+        Logger::Info("Apertura Impostazioni...");
+        // Pushiamo le impostazioni in OVERLAY (is_replacing = false)
+        data_->machine.AddState(std::make_unique<SettingsState>(data_), false);
+    }
+
+    if (exit_button_->IsPressed()) {
+        Logger::Info("Uscita dal gioco in corso.");
+        data_->window.close();
+    }
 }
 
 void MainMenuState::Draw() {
-    data_->window.clear();
     background_->Draw();
     data_->window.draw(test_sprite_);
-    data_->window.display();
+
+    // Disegniamo i bottoni
+    play_button_->Render(data_->window);
+    settings_button_->Render(data_->window);
+    exit_button_->Render(data_->window);
 }

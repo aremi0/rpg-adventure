@@ -20,7 +20,8 @@ class Button {
 
         void Update(const sf::Vector2f& mouse_pos); // Aggiorna lo stato del bottone in base alla posizione del mouse
         void Render(sf::RenderTarget& target); // Disegna il bottone a schermo
-        bool IsPressed() const; //Ritorna true nel momento esatto in cui il bottone viene cliccato e rilasciato
+        bool IsPressed() const; // Ritorna true nel momento esatto in cui il bottone viene cliccato e rilasciato
+        void SetText(const std::string& text); // Imposta il testo del bottone
 
     private:
         ButtonState button_state_;

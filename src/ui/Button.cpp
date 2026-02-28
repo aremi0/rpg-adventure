@@ -17,19 +17,9 @@ Button::Button(float x, float y, float width, float height,
 
     // Configura il testo
     text_.setFont(font);
-    text_.setString(text);
     text_.setCharacterSize(character_size);
     text_.setFillColor(sf::Color::White); // Testo bianco di default
-
-    // Centriamo il testo all'interno del bottone
-    sf::FloatRect text_bounds = text_.getLocalBounds();
-    text_.setOrigin(text_bounds.left + text_bounds.width / 2.0f,
-                    text_bounds.top  + text_bounds.height / 2.0f);
-    
-    text_.setPosition(
-        shape_.getPosition().x + (shape_.getSize().x / 2.0f),
-        shape_.getPosition().y + (shape_.getSize().y / 2.0f)
-    );
+    SetText(text); // Imposta il testo del bottone e lo allineo al suo centro
 }
 
 void Button::Update(const sf::Vector2f& mouse_pos) {
@@ -69,4 +59,17 @@ void Button::Render(sf::RenderTarget& target) {
 
 bool Button::IsPressed() const {
     return is_pressed_;
+}
+
+void Button::SetText(const std::string& text) {
+    text_.setString(text);
+    
+    sf::FloatRect text_bounds = text_.getLocalBounds();
+    text_.setOrigin(text_bounds.left + text_bounds.width / 2.0f,
+                    text_bounds.top  + text_bounds.height / 2.0f);
+    
+    text_.setPosition(
+        shape_.getPosition().x + (shape_.getSize().x / 2.0f),
+        shape_.getPosition().y + (shape_.getSize().y / 2.0f)
+    );
 }

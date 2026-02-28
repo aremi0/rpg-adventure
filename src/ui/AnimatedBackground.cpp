@@ -1,7 +1,6 @@
 #include "ui/AnimatedBackground.hpp"
 #include "core/Constants.hpp"
 #include "core/Game.hpp"
-#include "utils/Logger.hpp"
 
 AnimatedBackground::AnimatedBackground(GameDataRef data) 
     : data_(data), current_frame_index_(0), animation_timer_(0.0f), frame_duration_(Config::MainMenu::kFrameDuration) {}
