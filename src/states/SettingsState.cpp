@@ -39,6 +39,24 @@ void SettingsState::Init() {
             Config::Settings::kBackgroundName, Config::Settings::kBackgroundPath);
     } */
     
+    // ----------------- Loading Game sounds
+    auto hover_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonHoverSfxName), 
+        std::string(Config::Game::kButtonHoverSfxPath)
+    );
+    auto click_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonClickSfxName), 
+        std::string(Config::Game::kButtonClickSfxPath)
+    );
+
+    // Puntatori: nullptr se il caricamento è fallito, altrimenti puntano al buffer
+    const sf::SoundBuffer* hover_sfx = hover_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonHoverSfxName)) 
+        : nullptr;
+    const sf::SoundBuffer* click_sfx = click_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonClickSfxName)) 
+        : nullptr;
+
     // ----------------- Creating Settings buttons
     const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
 
@@ -53,8 +71,9 @@ void SettingsState::Init() {
         std::format("{}: {}x{}", 
                     Config::Settings::kRisoluzioneName, 
                     supported_resolutions_[res_index_].width, 
-                    supported_resolutions_[res_index_].height),
-        24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+                    supported_resolutions_[res_index_].height), 24, 
+                    Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
+                    hover_sfx, click_sfx
     );
 
     // Bottone Volume
@@ -62,15 +81,17 @@ void SettingsState::Init() {
         center_x, start_y + spacing, 300.0f, 50.0f, font, 
         std::format("{}: {}%", 
                     Config::Settings::kVolumeName, 
-                    volume_level_),
-        24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+                    volume_level_), 24, 
+                    Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
+                    hover_sfx, click_sfx
     );
 
     // Bottone Indietro
     back_button_ = std::make_unique<Button>(
         center_x, start_y + spacing * 2, 300.0f, 50.0f, font, 
         std::format("{}", Config::Settings::kIndietroName), 24, 
-        Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol
+        Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol,
+        hover_sfx, click_sfx
     );
 }
 

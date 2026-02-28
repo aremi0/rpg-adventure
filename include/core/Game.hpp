@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "StateMachine.hpp"
 #include "resources/AssetManager.hpp"
-#include <string>
 #include <entt/entt.hpp>
 
 struct GameData {

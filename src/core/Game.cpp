@@ -1,6 +1,8 @@
 #include "core/Game.hpp"
 #include "states/MainMenuState.hpp"
 #include "utils/Logger.hpp"
+#include "core/Constants.hpp"
+#include <SFML/Audio.hpp>
 
 Game::Game() : data_(std::make_shared<GameData>()) {
     // Crea la finestra di gioco
@@ -11,7 +13,22 @@ Game::Game() : data_(std::make_shared<GameData>()) {
                 static_cast<unsigned>(Config::Game::kWindowHeight)
             }), 
         std::string(Config::Game::kWindowName));
-    
+
+    // Warmup OpenAL: pre-inizializza il driver audio per eliminare la latenza al primo suono
+    if constexpr (Config::Game::kAudioWarmup) {
+        sf::SoundBuffer silent_buf;
+        // Creiamo un buffer con un singolo campione silenzioso (16-bit, mono, 44100Hz)
+        const sf::Int16 silence = 0;
+        silent_buf.loadFromSamples(&silence, 1, 1, 44100);
+        sf::Sound warmup;
+        warmup.setBuffer(silent_buf);
+        warmup.setVolume(0.f);
+        warmup.play();
+        sf::sleep(sf::milliseconds(10));
+        warmup.stop();
+        Logger::Trace("Audio warmup completato (OpenAL pre-inizializzato)");
+    }
+
     // Qui in futuro caricheremo lo stato iniziale (es. MenuState)
     data_->machine.AddState(std::make_unique<MainMenuState>(data_));
     data_->machine.ProcessStateChanges();

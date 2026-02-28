@@ -3,13 +3,19 @@
 
 Button::Button(float x, float y, float width, float height,
                const sf::Font& font, const std::string& text, unsigned int character_size,
-               sf::Color idle_color, sf::Color hover_color, sf::Color active_color)
+               sf::Color idle_color, sf::Color hover_color, sf::Color active_color,
+               const sf::SoundBuffer* hover_sfx, const sf::SoundBuffer* click_sfx)
     : button_state_(ButtonState::Idle),
       idle_color_(idle_color),
       hover_color_(hover_color),
       active_color_(active_color),
-      is_pressed_(false) {
+      is_pressed_(false),
+      last_mouse_pressed_(false) {
     
+    // Associa i buffer ai Sound (se forniti)
+    if (hover_sfx) hover_sound_.setBuffer(*hover_sfx);
+    if (click_sfx) click_sound_.setBuffer(*click_sfx);
+
     // Configura il rettangolo di sfondo
     shape_.setPosition(sf::Vector2f(x, y));
     shape_.setSize(sf::Vector2f(width, height));
@@ -26,6 +32,8 @@ void Button::Update(const sf::Vector2f& mouse_pos) {
     bool current_mouse_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     is_pressed_ = false; // Resettiamo il flag "Azione" ogni frame
 
+    ButtonState prev_state = button_state_;
+
     if (shape_.getGlobalBounds().contains(mouse_pos)) {
         // Se il mouse è sopra, decidiamo se colorarlo di Hover o Pressed
         button_state_ = current_mouse_down ? ButtonState::Pressed : ButtonState::Hover;
@@ -33,9 +41,14 @@ void Button::Update(const sf::Vector2f& mouse_pos) {
         // Se il tasto sinistro è premuto e non era premuto l'ultima volta, consideriamo un click
         if (current_mouse_down && !last_mouse_pressed_) {
             is_pressed_ = true;
+            click_sound_.play();
         }
     } else {
         button_state_ = ButtonState::Idle;
+    }
+
+    if (prev_state == ButtonState::Idle && button_state_ == ButtonState::Hover) {
+        hover_sound_.play(); // ← suono hover
     }
 
     // Aggiorniamo i colori

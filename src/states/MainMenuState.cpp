@@ -62,6 +62,23 @@ void MainMenuState::Init() {
         music.play();
     }
 
+    // ----------------- Loading Game sounds
+    auto hover_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonHoverSfxName), 
+        std::string(Config::Game::kButtonHoverSfxPath)
+    );
+    auto click_res = data_->assets.LoadAsset<sf::SoundBuffer>(
+        std::string(Config::Game::kButtonClickSfxName), 
+        std::string(Config::Game::kButtonClickSfxPath)
+    );
+    // Puntatori: nullptr se il caricamento è fallito, altrimenti puntano al buffer
+    const sf::SoundBuffer* hover_sfx = hover_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonHoverSfxName)) 
+        : nullptr;
+    const sf::SoundBuffer* click_sfx = click_res 
+        ? &data_->assets.GetAsset<sf::SoundBuffer>(std::string(Config::Game::kButtonClickSfxName)) 
+        : nullptr;
+
     // ----------------- Creating MainMenu buttons
     // ----------------- Loading Game fonts
     auto font_res = data_->assets.LoadAsset<sf::Font>(
@@ -77,21 +94,24 @@ void MainMenuState::Init() {
         float spacing = 80.0f;
 
         play_button_ = std::make_unique<Button>(
-            center_x, start_y, 300.0f, 50.0f,
-            font, std::string(Config::MainMenu::kNuovaPartitaName), 
-            24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+            center_x, start_y, 300.0f, 50.0f, font, 
+            std::string(Config::MainMenu::kNuovaPartitaName), 24, 
+            Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
+            hover_sfx, click_sfx
         );
 
         settings_button_ = std::make_unique<Button>(
-            center_x, start_y + spacing, 300.0f, 50.0f,
-            font, std::string(Config::MainMenu::kImpostazioniName), 
-            24, Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol
+            center_x, start_y + spacing, 300.0f, 50.0f, font, 
+            std::string(Config::MainMenu::kImpostazioniName), 24, 
+            Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
+            hover_sfx, click_sfx
         );
 
         exit_button_ = std::make_unique<Button>(
-            center_x, start_y + spacing * 2, 300.0f, 50.0f,
-            font, std::string(Config::MainMenu::kEsciName), 
-            24, Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol
+            center_x, start_y + spacing * 2, 300.0f, 50.0f, font, 
+            std::string(Config::MainMenu::kEsciName), 24,
+            Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol,
+            hover_sfx, click_sfx
         );
     }
 }

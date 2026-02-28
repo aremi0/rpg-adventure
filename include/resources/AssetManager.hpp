@@ -48,7 +48,7 @@ class AssetManager {
             // Se l'asset esiste già, non caricarlo
             if (GetStorage<T>().contains(name)) {
                 Logger::Trace("Asset '{}' già in memoria. Ricaricamento saltato.", name);
-                return {};
+                return std::expected<void, AssetError>{};
             }
 
             T asset;
@@ -59,14 +59,14 @@ class AssetManager {
 
             GetStorage<T>()[name] = std::move(asset);
             Logger::Trace("Asset '{}' caricato con successo da: {}", name, file_path);
-            return {};
+            return std::expected<void, AssetError>{};
         }
 
         // sf::Music non può essere copiato e usa openFromFile, quindi lo gestiamo a parte con unique_ptr
         std::expected<void, AssetError> LoadMusic(const std::string& name, const std::string& file_path) {
             if (musics_.contains(name)) {
                 Logger::Trace("Musica '{}' già in memoria. Ricaricamento saltato.", name);
-                return {};
+                return std::expected<void, AssetError>{};
             }
 
             auto music = std::make_unique<sf::Music>();
@@ -77,7 +77,7 @@ class AssetManager {
 
             musics_[name] = std::move(music);
             Logger::Trace("Musica '{}' caricata con successo da: {}", name, file_path);
-            return {};
+            return std::expected<void, AssetError>{};
         }
 
         sf::Music& GetMusic(const std::string& name) {
@@ -106,6 +106,11 @@ class AssetManager {
                 throw std::runtime_error("Asset critico mancante: " + name);
             }
             return it->second;
+        }
+
+        template<typename T>
+        bool HasAsset(const std::string& name) const {
+            return GetStorage<T>().contains(name);
         }
 
     private:

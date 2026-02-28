@@ -1,8 +1,10 @@
 #pragma once
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <string>
+#include <SFML/Audio.hpp>
 
 enum class ButtonState {
     Idle,
@@ -14,7 +16,9 @@ class Button {
     public:
         Button(float x, float y, float width, float height,
         const sf::Font& font, const std::string& text, unsigned int character_size,
-        sf::Color idle_color, sf::Color hover_color, sf::Color active_color);
+        sf::Color idle_color, sf::Color hover_color, sf::Color active_color,
+        const sf::SoundBuffer* hover_sfx = nullptr,
+        const sf::SoundBuffer* click_sfx = nullptr);
 
         ~Button() = default;
 
@@ -35,4 +39,7 @@ class Button {
         // Flags per evitare click multipli tenendo premuto
         bool is_pressed_;
         bool last_mouse_pressed_;
+
+        sf::Sound hover_sound_;
+        sf::Sound click_sound_;
 };
