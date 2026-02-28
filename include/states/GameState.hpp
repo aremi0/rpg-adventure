@@ -6,6 +6,7 @@
 class GameState : public State {
     public:
         GameState(GameDataRef data);
+        ~GameState() override;
 
         void Init() override;
         void HandleInput() override;

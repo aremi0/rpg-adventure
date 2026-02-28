@@ -13,7 +13,7 @@ MainMenuState::MainMenuState(GameDataRef data)
     background_(std::make_unique<AnimatedBackground>(data)) {}
 
 void MainMenuState::Init() {
-    Logger::Trace("Inizializzazione ({})", this->GetStateName());
+    Logger::Debug("Inizializzazione ({})", this->GetStateName());
 
     // 1. Provo a caricare una texture che non esiste (Test Fallback)
     auto texture_error_test = data_->assets.LoadAsset<sf::Texture>("hero_sprite", "assets/textures/non_esiste.png");

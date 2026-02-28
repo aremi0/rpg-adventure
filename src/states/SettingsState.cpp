@@ -17,7 +17,7 @@ SettingsState::SettingsState(GameDataRef data)
     }
 
 void SettingsState::Init() {
-    Logger::Trace("Inizializzazione ({})", this->GetStateName());
+    Logger::Debug("Inizializzazione ({})", this->GetStateName());
 
     // ----------------- Loading Settings background
     // Attualmente lo sfondo è semplicemente un overlay del MainMenuState con blur (Guarda metodo Draw() più giù)

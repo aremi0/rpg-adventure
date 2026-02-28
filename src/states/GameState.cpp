@@ -26,8 +26,13 @@ GameState::GameState(GameDataRef data)
     : State("GameState"),
     data_(data) {}
 
+GameState::~GameState() {
+    Logger::Debug("Distruzione GameState: Pulizia del registry EnTT...");
+    data_->registry.clear(); // Distrugge TUTTE le entità e libera la RAM
+}
+
 void GameState::Init() {
-    Logger::Trace("Inizializzazione ({})", this->GetStateName());
+    Logger::Debug("Inizializzazione ({})", this->GetStateName());
 
     // 1. CARICAMENTO ASSET
     data_->assets.LoadAsset<sf::Texture>(
