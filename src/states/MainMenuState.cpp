@@ -116,8 +116,6 @@ void MainMenuState::HandleInput() {
 }
 
 void MainMenuState::Update(float dt) {
-    background_->Update(dt);
-
     // Mappiamo le coordinate del mouse rispetto alla finestra
     sf::Vector2f mouse_pos = data_->window.mapPixelToCoords(sf::Mouse::getPosition(data_->window));
 
@@ -143,6 +141,10 @@ void MainMenuState::Update(float dt) {
         Logger::Info("Uscita dal gioco in corso.");
         data_->window.close();
     }
+}
+
+void MainMenuState::UpdateVisuals(float dt) {
+    background_->Update(dt);
 }
 
 void MainMenuState::Draw() {

@@ -15,7 +15,8 @@ class State {
 
         virtual void Init() = 0;
         virtual void HandleInput() = 0;
-        virtual void Update(float dt) = 0;
+        virtual void Update(float dt) = 0; // Update della logica di gioco (solo State attivo)
+        virtual void UpdateVisuals(float dt) {} // Update della grafica (tutti gli stati nello stack)
         virtual void Draw() = 0;
 
         // Utile per mettere in pausa uno stato senza distruggerlo

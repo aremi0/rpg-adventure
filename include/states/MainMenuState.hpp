@@ -11,6 +11,7 @@ class MainMenuState : public State {
         void Init() override;
         void HandleInput() override;
         void Update(float dt) override;
+        void UpdateVisuals(float dt) override;
         void Draw() override;
 
         // Metodi per gestire l'overlay

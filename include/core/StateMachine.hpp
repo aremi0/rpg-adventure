@@ -10,6 +10,7 @@ class StateMachine {
         void ProcessStateChanges();
 
         std::unique_ptr<State>& GetActiveState();
+        const std::vector<std::unique_ptr<State>>& GetStates() const;
 
         void Draw(); // Disegna tutti gli State nello stack
 

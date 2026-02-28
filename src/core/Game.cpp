@@ -39,8 +39,14 @@ void Game::Run() {
 
         // Loop di Update (Fixed Timestep)
         while (accumulator >= kDeltaTime) {
+            // Update di Logica e Input solo per lo State attivo
             data_->machine.GetActiveState()->HandleInput();
             data_->machine.GetActiveState()->Update(kDeltaTime);
+
+            // Update della Grafica (animazioni ambientazione) per tutti gli stati nello stack
+            for (auto& state : data_->machine.GetStates()) {
+                state->UpdateVisuals(kDeltaTime);
+            }
 
             accumulator -= kDeltaTime;
         }

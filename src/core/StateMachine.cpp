@@ -55,3 +55,8 @@ void StateMachine::Draw() {
         state->Draw();
     }
 }
+
+const std::vector<std::unique_ptr<State>>& StateMachine::GetStates() const {
+    return states_;
+}
+    
