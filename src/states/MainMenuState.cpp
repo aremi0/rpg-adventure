@@ -147,10 +147,25 @@ void MainMenuState::Update(float dt) {
 
 void MainMenuState::Draw() {
     background_->Draw();
-    data_->window.draw(test_sprite_);
+    
 
-    // Disegniamo i bottoni
-    play_button_->Render(data_->window);
-    settings_button_->Render(data_->window);
-    exit_button_->Render(data_->window);
+    if (!is_paused_) {
+        data_->window.draw(test_sprite_);
+        
+        // Disegniamo i bottoni
+        play_button_->Render(data_->window);
+        settings_button_->Render(data_->window);
+        exit_button_->Render(data_->window);
+    }
+
+}
+
+void MainMenuState::Pause() {
+    is_paused_ = true;
+    Logger::Trace("{} messo in pausa (Nascondo bottoni)", this->GetStateName());
+}
+
+void MainMenuState::Resume() {
+    is_paused_ = false;
+    Logger::Trace("{} messo in ripresa (Mostro bottoni)", this->GetStateName());
 }

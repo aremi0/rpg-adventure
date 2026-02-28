@@ -14,11 +14,13 @@ class MainMenuState : public State {
         void Draw() override;
 
         // Metodi per gestire l'overlay
-        void Pause() override {}
-        void Resume() override {}
+        void Pause() override;
+        void Resume() override;
 
     private:
         GameDataRef data_;
+        bool is_paused_ = false;
+
         std::unique_ptr<AnimatedBackground> background_; // Variabile per l'animazione del background
         sf::Sprite test_sprite_;
 
