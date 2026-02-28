@@ -3,6 +3,7 @@
 *   [1.1 Alias di Tipo (`using`)](#11-alias-di-tipo-using)
 *   [1.2 Deduzione del tipo (`auto`)](#12-deduzione-del-tipo-auto)
 *   [1.3 Stringhe Ottimizzate (`std::string_view`)](#13-stringhe-ottimizzate-stdstring_view)
+*   [1.4 Attributi Standard (`[[nodiscard]]` e altri)](#14-attributi-standard-nodiscard-e-altri)
 
 ### 1.1 Alias di Tipo (`using`)
 
@@ -94,5 +95,32 @@ Spesso le funzioni prendono stringhe solo per leggerle.
     *   È solo una "vista" (puntatore + lunghezza). Non possiede memoria.
     *   Accetta `std::string`, `const char*`, e letterali a costo zero.
     *   **Attenzione**: Non usarlo per memorizzare dati a lungo termine, ma solo come parametro di funzione.
+
+### 1.4 Attributi Standard (`[[nodiscard]]` e altri)
+
+A partire dal C++11 (e ampliati nel C++17/C++20), il linguaggio ha introdotto una sintassi standardizzata per gli **attributi** usando le doppie parentesi quadre `[[ ]]`. Servono a fornire istruzioni opzionali ma preziose al compilatore, permettendo di generare avvisi o ottimizzare il codice, senza alterare il funzionamento logico dell'applicazione.
+
+#### `[[nodiscard]]` (C++17)
+Di gran lunga il più importante a livello architetturale. L'attributo chiede al compilatore di generare un *warning* (spesso trattato come errore nei progetti ben configurati) se il valore restituito da una funzione o da una classe viene ignorato dal chiamante.
+È essenziale per prevenire **bug logici**, ad esempio su funzioni che non modificano lo stato ma ritornano un calcolo puro, oppure nei meccanismi di gestione errori (vedi [Capitolo 6](6_gestione_degli_errori_e_tipi_monadici.md)).
+
+```cpp
+[[nodiscard]] float GetEffectiveVolume() const {
+    return (master / 100.0f) * (channel / 100.0f) * 100.0f;
+}
+
+void Update() {
+    GetEffectiveVolume(); // BUG: Il compilatore lancerà un warning! Il calcolo sta andando perso.
+    float v = GetEffectiveVolume(); // OK
+}
+```
+
+> [!NOTE] 
+> Se un intero `struct` o `class` viene marcato come `[[nodiscard]]`, qualsiasi funzione che ritorni un oggetto di quel tipo erediterà implicitamente il comportamento `[[nodiscard]]`. (Ad esempio, il tipo di libreria `std::expected` è intrinsecamente `[[nodiscard]]`).
+
+#### Altri attributi comuni nel C++ Moderno:
+*   **`[[maybe_unused]]` (C++17)**: Sopprime i warning del compilatore per "unreachable code" o "variable unused". È utilissimo quando dichiari variabili che usi solo dentro delle macro `assert()` o in specifici branch di pre-compilazione (`#ifdef DEBUG`).
+*   **`[[fallthrough]]` (C++17)**: Si inserisce appositamente nei costrutti `switch` dove ometti volontariamente il `break;` per "cadere" nel `case` successivo. Disabilita il fastidioso (ma utile) avviso del compilatore per i break dimenticati.
+*   **`[[deprecated("Messaggio")]]` (C++14)**: Segnala ad altri sviluppatori (con tanto di warning esplicito in build) che una vecchia funzione/classe sta per essere rimossa dal progetto e di farne uso di una più moderna.
 
 ---

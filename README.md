@@ -25,8 +25,9 @@ You can find detailed documentation in the `doc/` directory:
 *   [1. Project Configuration & Setup](doc/core/1_project_setup.md): Explains the `.vscode` configuration and `CMakeLists.txt` file structure.
 *   [2. Core Engine & State Machine](doc/core/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
 *   [2.1 Logging System, MainMenuState initialization](doc/core/2_1_logging_and_menu_state.md): Explains the logging system and the menu state initialization.
-*   [3. Resource Management](doc/core/3_resource_managment.md): Explains the resource management system.
+*   [3.0 Resource Management](doc/core/3_0_resource_managment.md): Explains the resource management system.
 *   [3.5 MainMenuState & SettingsState](doc/core/3_5_main_menu_settings_core.md): Explains the main menu and settings.
+*   [3.6 Audio System & Settings UI](doc/core/3_6_audio_system_and_settings_ui.md): Explains the audio system and settings UI.
 
 ---
 
@@ -37,20 +38,14 @@ Ho inserito la nuova **Fase 3.5** come richiesto.
 * ✅ **Fase 1: Setup dell'Ambiente e Boilerplate**
 * ✅ **Fase 2: Core Engine & State Machine**
     * ✅ **2.1: Logging System, MainMenuState initialization**
-* ✅ **Fase 3: Resource Management** (Texture & Animations)
-* ✅ **Fase 3.5: UI, Audio e SettingsState**
-    * ✅ **3.5.1: Classe UI Button** (Creazione pulsanti interattivi e centrati).
-    * ✅ **3.5.2: Gestione Audio** (Aggiornamento AssetManager per SFX e Music).
-    * ✅ **3.5.3: Settings State** (Nuovo stato per risoluzione e volumi).
-    * ✅ **3.5.4: Assemblaggio Main Menu** (Unire tutto con sfondo, musica e pulsanti).
-
-* 🔄 **Fase 4: Integrazione ECS (EnTT)**
-    * 🔄 **4.1: Registry Setup** (Integrazione del database EnTT nel core dell'engine).
-    * ⬜ **4.2: Base Component** (Creazione delle prime struct struct POD come Transform e Sprite).
-    * ⬜ **4.3: Render System** (Creazione del sistema che disegna in automatico le entità).
-    * ⬜ **4.4: Game State & First Entoty** (Avvio della partita dal menu e spawn visivo a schermo).
-
-* ⬜ **Fase 5: Input & Movimento**
+* ✅ **Fase 3: Resource Management**
+    * ✅ **3.5 - 3.6: UI, Audio e SettingsState**
+* ✅ **Fase 4: Integrazione ECS (EnTT)**
+    * ✅ **4.1: Registry Setup**
+    * ✅ **4.2: Base Component**
+    * ✅ **4.3: Render System**
+    * ✅ **4.4: Game State & First Entoty**
+* 🔄 **Fase 5: Input & Movimento**
 * ⬜ **Fase 6: Tilemap & Collisioni**
 * ⬜ **Fase 7: RPG Logic & UI**
 

@@ -8,6 +8,7 @@ Un compendio delle scelte architetturali e delle feature C++ utilizzate nel prog
     *   [1.1 Alias di Tipo (`using`)](cpp-review/cpp-core/1_concetti_base_e_tipi_moderni.md#11-alias-di-tipo-using)
     *   [1.2 Deduzione del tipo (`auto`)](cpp-review/cpp-core/1_concetti_base_e_tipi_moderni.md#12-deduzione-del-tipo-auto)
     *   [1.3 Stringhe Ottimizzate (`std::string_view`)](cpp-review/cpp-core/1_concetti_base_e_tipi_moderni.md#13-stringhe-ottimizzate-stdstring_view)
+    *   [1.4 Attributi Standard (`[[nodiscard]]` e altri)](cpp-review/cpp-core/1_concetti_base_e_tipi_moderni.md#14-attributi-standard-nodiscard-e-altri)
 2.  [Progettazione delle Classi (Costruzione e Distruzione)](cpp-review/cpp-core/2_progettazione_delle_classi_costruzione_e_distruzione.md)
     *   [2.1 Inizializzazione Uniforme e Most Vexing Parse](cpp-review/cpp-core/2_progettazione_delle_classi_costruzione_e_distruzione.md#21-inizializzazione-uniforme-e-most-vexing-parse)
     *   [2.2 Member Initializer List](cpp-review/cpp-core/2_progettazione_delle_classi_costruzione_e_distruzione.md#22-member-initializer-list)

@@ -9,6 +9,9 @@ Introdotto nello standard C++23 (header `<expected>`), `std::expected<T, E>` è 
 
 A differenza delle eccezioni (`try-catch`), che interrompono il flusso di esecuzione e sono costose in termini di performance, e a differenza dei codici di errore (che spesso ignorano il valore di ritorno), `std::expected` obbliga il programmatore a gestire esplicitamente il caso di fallimento, mantenendo il codice lineare e performante.
 
+> [!TIP]
+> **Collegamento con `[[nodiscard]]`**: Nello standard C++, il tipo `std::expected` è marcato implicitamente con l'attributo `[[nodiscard]]` (vedi [Capitolo 1.4](1_concetti_base_e_tipi_moderni.md#14-attributi-standard-nodiscard-e-altri)). Questo significa che il compilatore segnalerà obbligatoriamente un warning se chiami una funzione fallibile ma dimentichi di gestirne l'eventuale errore restituito.
+
 **Sintassi:**
 
 ```cpp
