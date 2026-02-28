@@ -43,6 +43,12 @@ namespace Config {
         inline const sf::Color kIdleRedCol = sf::Color(150, 50, 50);
         inline const sf::Color kHoverRedCol = sf::Color(200, 70, 70);
         inline const sf::Color kActiveRedCol = sf::Color(100, 30, 30);
+
+        inline const sf::Color kLabelCol = sf::Color(50, 50, 50);
+
+        inline const sf::Color kIdleGreenCol = sf::Color(0, 155, 85);
+        inline const sf::Color kHoverGreenCol = sf::Color(0, 190, 105);
+        inline const sf::Color kActiveGreenCol = sf::Color(0, 120, 65);
     }
 
     namespace MainMenu {
@@ -59,13 +65,25 @@ namespace Config {
 
     namespace Settings {
         inline constexpr std::string_view kRisoluzioneName = "Risoluzione";
-        inline constexpr std::string_view kVolumeName = "Volume";
         inline constexpr std::string_view kIndietroName = "Indietro";
 
-        inline constexpr int kVolumeStep = 25;
+        // Nomi per i bottoni volume
+        inline constexpr std::string_view kMasterVolumeName = "Master";
+        inline constexpr std::string_view kMusicVolumeName  = "Musica";
+        inline constexpr std::string_view kSfxVolumeName    = "Effetti";
+        inline constexpr std::string_view kUiVolumeName     = "Interfaccia";
+
+        // Volumi default per canale (0-100)
+        inline constexpr int kDefaultMasterVolume = 100;
+        inline constexpr int kDefaultMusicVolume  = 25;
+        inline constexpr int kDefaultSfxVolume    = 100;
+        inline constexpr int kDefaultUiVolume     = 100;
+
+        inline constexpr int kVolumeStep = 5;
         inline constexpr int kMaxVolume = 100;
         inline constexpr int kMinVolume = 0;
-        inline constexpr int kMusicVolume = 100;
-        inline constexpr int kSoundVolume = 100;
+
+        inline constexpr std::string_view kArrowLeft = "<";
+        inline constexpr std::string_view kArrowRight = ">";
     }
 }

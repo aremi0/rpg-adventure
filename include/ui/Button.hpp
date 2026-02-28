@@ -18,7 +18,8 @@ class Button {
         const sf::Font& font, const std::string& text, unsigned int character_size,
         sf::Color idle_color, sf::Color hover_color, sf::Color active_color,
         const sf::SoundBuffer* hover_sfx = nullptr,
-        const sf::SoundBuffer* click_sfx = nullptr);
+        const sf::SoundBuffer* click_sfx = nullptr,
+        float volume = 100.f);
 
         ~Button() = default;
 
@@ -26,6 +27,8 @@ class Button {
         void Render(sf::RenderTarget& target); // Disegna il bottone a schermo
         bool IsPressed() const; // Ritorna true nel momento esatto in cui il bottone viene cliccato e rilasciato
         void SetText(const std::string& text); // Imposta il testo del bottone
+        void SetVolume(float volume); // Imposta il volume dei suoni hover/click
+        void SetColors(sf::Color idle, sf::Color hover, sf::Color active); // Cambia i colori del bottone
 
     private:
         ButtonState button_state_;

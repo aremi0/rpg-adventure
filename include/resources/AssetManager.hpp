@@ -113,6 +113,10 @@ class AssetManager {
             return GetStorage<T>().contains(name);
         }
 
+        bool HasMusic(const std::string& name) const {
+            return musics_.contains(name);
+        }
+
     private:
         // Helper per ottenere la mappa corretta
         template<typename T>

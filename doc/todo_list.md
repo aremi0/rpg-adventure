@@ -3,5 +3,4 @@ Come converebbe memorizzare questi tileset? Tutti in una unica mappa o fare più
 2. Aggiungere un meccanismo che mi permette di loggare solo i log in debito, trace, ecc... Possibilmente leggendo da file properties o yaml?
 Ha senso leggere queste properties da yaml e quali altri properties potrei pensare di aggiungere in futuro?
 Per esempio il salvataggio delle impostazioni sul main menu può essere letto da yaml (read-only) ed eventualmente salvato da qualche parte e se esiste il file salvato allora legge prioritariamente dal file salvato altrimenti dallo yaml come fallback?
-3. Integrare nei Button dei parametri sf::SoundBuffer per i suoni di Hover e Pressione.
-4. Ampliare il sistema del volume di gioco differendo i volumi di: Master, ThemeMusics, World-SFX e GUI-SFX.
+3. Abbassare il gain della canzone di fondo con audacity di almeno 6db

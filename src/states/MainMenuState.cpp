@@ -58,7 +58,7 @@ void MainMenuState::Init() {
     if (music_res) {
         sf::Music& music = data_->assets.GetMusic(std::string(Config::Game::kMusicName));
         music.setLoop(true);
-        music.setVolume(static_cast<float>(Config::Settings::kMusicVolume));
+        music.setVolume(data_->audio.GetMusicVolume());
         music.play();
     }
 
@@ -88,8 +88,8 @@ void MainMenuState::Init() {
     if (font_res) {
         const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
         
-        // Posizionamento dinamico in base alla finestra
-        float center_x = data_->window.getSize().x / 2.0f - 150.0f; // 150 = metà di 300 (larghezza)
+        // Layout: centro della risoluzione logica, larghezza totale ~340px
+        float center_x = Config::Game::kWindowWidth / 2.0f - 150.0f;
         float start_y = 250.0f;
         float spacing = 80.0f;
 
@@ -97,21 +97,24 @@ void MainMenuState::Init() {
             center_x, start_y, 300.0f, 50.0f, font, 
             std::string(Config::MainMenu::kNuovaPartitaName), 24, 
             Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
-            hover_sfx, click_sfx
+            hover_sfx, click_sfx,
+            data_->audio.GetUiVolume()
         );
 
         settings_button_ = std::make_unique<Button>(
             center_x, start_y + spacing, 300.0f, 50.0f, font, 
             std::string(Config::MainMenu::kImpostazioniName), 24, 
             Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
-            hover_sfx, click_sfx
+            hover_sfx, click_sfx,
+            data_->audio.GetUiVolume()
         );
 
         exit_button_ = std::make_unique<Button>(
             center_x, start_y + spacing * 2, 300.0f, 50.0f, font, 
             std::string(Config::MainMenu::kEsciName), 24,
             Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol,
-            hover_sfx, click_sfx
+            hover_sfx, click_sfx,
+            data_->audio.GetUiVolume()
         );
     }
 }
@@ -184,5 +187,17 @@ void MainMenuState::Pause() {
 
 void MainMenuState::Resume() {
     is_paused_ = false;
+
+    // Riapplica i volumi aggiornati dal SettingsState
+    float ui_vol = data_->audio.GetUiVolume();
+    play_button_->SetVolume(ui_vol);
+    settings_button_->SetVolume(ui_vol);
+    exit_button_->SetVolume(ui_vol);
+
+    if (data_->assets.HasMusic(std::string(Config::Game::kMusicName))) {
+        data_->assets.GetMusic(std::string(Config::Game::kMusicName))
+            .setVolume(data_->audio.GetMusicVolume());
+    }
+
     Logger::Trace("{} messo in ripresa (Mostro bottoni)", this->GetStateName());
 }

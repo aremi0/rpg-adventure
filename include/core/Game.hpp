@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "StateMachine.hpp"
 #include "resources/AssetManager.hpp"
+#include "audio/AudioSettings.hpp"
 #include <entt/entt.hpp>
 
 struct GameData {
@@ -9,6 +10,8 @@ struct GameData {
     StateMachine machine;
     AssetManager assets;
     entt::registry registry;
+    AudioSettings audio;
+    int resolution_index = 1; // Indice della risoluzione attuale (persiste tra le ricreazioni degli stati)
     // Qui aggiungeremo in futuro AssetManager e InputManager
 };
 

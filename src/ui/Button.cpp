@@ -4,7 +4,8 @@
 Button::Button(float x, float y, float width, float height,
                const sf::Font& font, const std::string& text, unsigned int character_size,
                sf::Color idle_color, sf::Color hover_color, sf::Color active_color,
-               const sf::SoundBuffer* hover_sfx, const sf::SoundBuffer* click_sfx)
+               const sf::SoundBuffer* hover_sfx, const sf::SoundBuffer* click_sfx,
+               float volume)
     : button_state_(ButtonState::Idle),
       idle_color_(idle_color),
       hover_color_(hover_color),
@@ -12,9 +13,9 @@ Button::Button(float x, float y, float width, float height,
       is_pressed_(false),
       last_mouse_pressed_(false) {
     
-    // Associa i buffer ai Sound (se forniti)
     if (hover_sfx) hover_sound_.setBuffer(*hover_sfx);
     if (click_sfx) click_sound_.setBuffer(*click_sfx);
+    SetVolume(volume);
 
     // Configura il rettangolo di sfondo
     shape_.setPosition(sf::Vector2f(x, y));
@@ -81,4 +82,16 @@ void Button::SetText(const std::string& text) {
         shape_.getPosition().x + (shape_.getSize().x / 2.0f),
         shape_.getPosition().y + (shape_.getSize().y / 2.0f)
     );
+}
+
+void Button::SetVolume(float volume) {
+    hover_sound_.setVolume(volume);
+    click_sound_.setVolume(volume);
+}
+
+void Button::SetColors(sf::Color idle, sf::Color hover, sf::Color active) {
+    idle_color_ = idle;
+    hover_color_ = hover;
+    active_color_ = active;
+    shape_.setFillColor(idle); // Applica subito il colore idle
 }
