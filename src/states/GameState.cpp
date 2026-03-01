@@ -42,6 +42,7 @@ void GameState::Init() {
 
     // 2. CREAZIONE ENTITÀ
     hero_ = data_->registry.create(); // hero_ ora vale 0 (o l'ID disponibile)
+    data_->registry.emplace<PlayerComponent>(hero_); // Aggiungiamo il Tag Player
 
     // 3. ASSEGNAZIONE COMPONENTI
     // Aggiungiamo il Transform: lo mettiamo al centro della risoluzione logica
@@ -52,6 +53,9 @@ void GameState::Init() {
     );
     transform.elevation = 0.0f;
     transform.scale = sf::Vector2f(1.0f, 1.0f); // Lo facciamo un po' più grande
+
+    // Aggiungiamo il componente Velocità
+    data_->registry.emplace<VelocityComponent>(hero_);
 
     // Aggiungiamo lo Sprite
     auto& sprite_comp = data_->registry.emplace<SpriteComponent>(hero_);
@@ -83,8 +87,8 @@ void GameState::HandleInput() {
 void GameState::Update(float dt) {
     // TEST DELL'ECS: Modifichiamo il dato nel TransformComponent!
     // Facciamo ruotare l'eroe per assicurarci che il RenderSystem legga i dati in tempo reale.
-    auto& transform = data_->registry.get<TransformComponent>(hero_);
-    transform.rotation += 90.0f * dt; // Ruota di 90 gradi al secondo
+    //auto& transform = data_->registry.get<TransformComponent>(hero_);
+    //transform.rotation += 90.0f * dt; // Ruota di 90 gradi al secondo
 }
 
 void GameState::UpdateVisuals(float dt) {

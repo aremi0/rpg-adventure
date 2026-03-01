@@ -22,3 +22,19 @@ struct SpriteComponent {
     sf::Sprite sprite;
     int z_index{0};                     // Ordine di disegno (chi sta davanti a chi)
 };
+
+// -----------------------------------------------------------------------------
+// VelocityComponent
+// Determina in che direzione e a che velocità si sta muovendo un'entità.
+// -----------------------------------------------------------------------------
+struct VelocityComponent {
+    sf::Vector2f velocity{0.0f, 0.0f}; // Vettore di movimento (es. {100.f, 0.f} va a destra)
+    float speed{200.0f};               // Velocità base in pixel al secondo
+};
+
+// -----------------------------------------------------------------------------
+// PlayerComponent (TAG)
+// È una struct VUOTA. Serve solo come "etichetta" per dire al sistema di input:
+// "Ehi, è QUESTA l'entità che devi muovere quando l'utente preme i tasti!"
+// -----------------------------------------------------------------------------
+struct PlayerComponent {};
