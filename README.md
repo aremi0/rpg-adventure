@@ -47,9 +47,12 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **4.4: Game State & First Entoty**
 * 🔄 **Fase 5: Input & Movimento**
     * ✅ **5.1: Nuovi Componenti** (`VelocityComponent` e `PlayerComponent`).
-    * 🔄 **5.2: Player Input System** (Legge la tastiera e imposta la direzione).
-    * ⬜ **5.3: Movement System** (Applica la velocità alla posizione in modo fluido).
-    * ⬜ **5.4: Mouse Navigation System** *(Opzionale)* (Movimento Punta e Clicca).
+    * ✅ **5.2: Player Input System** (Legge la tastiera e imposta la direzione).
+    * ✅ **5.3: Movement System** (Applica la velocità alla posizione in modo fluido).
+    * 🔄 **5.4: Advanced Debugging Tools**
+        * ⬜ **5.4.1: Dynamic Logger** (Switch in tempo reale dei livelli di log tramite F1).
+        * ⬜ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay attivabile con F2).
+    * 🔄 **5.5: Mouse Navigation System** *(Opzionale)* (Movimento Punta e Clicca).
 * ⬜ **Fase 6: Tilemap & Collisioni**
 * ⬜ **Fase 7: RPG Logic & UI**
 
