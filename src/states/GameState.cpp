@@ -4,6 +4,8 @@
 #include "components/Components.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
+#include "systems/PlayerInputSystem.hpp"
+#include "systems/MovementSystem.hpp"
 // #include "systems/WorldSystem.hpp"
 // #include "systems/PlayerSystem.hpp"
 // #include "systems/InventorySystem.hpp"
@@ -85,10 +87,11 @@ void GameState::HandleInput() {
 }
 
 void GameState::Update(float dt) {
-    // TEST DELL'ECS: Modifichiamo il dato nel TransformComponent!
-    // Facciamo ruotare l'eroe per assicurarci che il RenderSystem legga i dati in tempo reale.
-    //auto& transform = data_->registry.get<TransformComponent>(hero_);
-    //transform.rotation += 90.0f * dt; // Ruota di 90 gradi al secondo
+    // 1. Legge i tasti e calcola l'intento (modifica le Velocity)
+    PlayerInputSystem::Update(data_->registry);
+
+    // 2. Applica la fisica universale (sposta i Transform)
+    MovementSystem::Update(data_->registry, dt);
 }
 
 void GameState::UpdateVisuals(float dt) {
