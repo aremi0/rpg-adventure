@@ -28,6 +28,7 @@ You can find detailed documentation in the `doc/` directory:
 *   [3.0 Resource Management](doc/core/3_0_resource_managment.md): Explains the resource management system.
 *   [3.5 MainMenuState & SettingsState](doc/core/3_5_main_menu_settings_core.md): Explains the main menu and settings.
 *   [3.6 Audio System & Settings UI](doc/core/3_6_audio_system_and_settings_ui.md): Explains the audio system and settings UI.
+*   [3.7 Audio Asset Pipeline](doc/core/3_7_audio_asset_pipeline.md): Explains the audio asset pipeline.
 *   [4.0 Entity Component System (ECS)](doc/core/4_0_ecs.md): Explains the ECS system.
 
 ---
