@@ -23,11 +23,12 @@ You can find detailed documentation in the `doc/` directory:
 
 *   [0. Project Overview](doc/core/0_structure_and_roadmap.md): Explains the project overview.
 *   [1. Project Configuration & Setup](doc/core/1_project_setup.md): Explains the `.vscode` configuration and `CMakeLists.txt` file structure.
-*   [2. Core Engine & State Machine](doc/core/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
+*   [2.0 Core Engine & State Machine](doc/core/2_0_core_engine_and_state_machine.md): Explains the core engine and state machine.
 *   [2.1 Logging System, MainMenuState initialization](doc/core/2_1_logging_and_menu_state.md): Explains the logging system and the menu state initialization.
 *   [3.0 Resource Management](doc/core/3_0_resource_managment.md): Explains the resource management system.
 *   [3.5 MainMenuState & SettingsState](doc/core/3_5_main_menu_settings_core.md): Explains the main menu and settings.
 *   [3.6 Audio System & Settings UI](doc/core/3_6_audio_system_and_settings_ui.md): Explains the audio system and settings UI.
+*   [4.0 Entity Component System (ECS)](doc/core/4_0_ecs.md): Explains the ECS system.
 
 ---
 
