@@ -21,8 +21,12 @@ class AnimatedBackground {
 
     private:
         GameDataRef data_;
-        std::vector<std::string> frames_;
         sf::Sprite sprite_;
+
+        // È sicuro perchè il re-hashing della std::unordered_map sposta i nodi ma non cambia
+        // l'indirizzo di memoria fisico degli elementi (delle Texture in questo caso).
+        // In questo modo non avremo mai dangling pointer.
+        std::vector<const sf::Texture*> frames_;
 
         size_t current_frame_index_;
         float animation_timer_;

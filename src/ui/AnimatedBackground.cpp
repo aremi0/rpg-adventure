@@ -6,11 +6,14 @@ AnimatedBackground::AnimatedBackground(GameDataRef data)
     : data_(data), current_frame_index_(0), animation_timer_(0.0f), frame_duration_(Config::MainMenu::kFrameDuration) {}
 
 void AnimatedBackground::AddFrame(const std::string& texture_name) {
-    frames_.push_back(texture_name);
+    // 1. Chiedo la texture all'AssetManager una sola volta
+    const auto& tex = data_->assets.GetAsset<sf::Texture>(texture_name);
 
-    // Se è il primo frame aggiunto, lo imposto subito come texture corrente
+    // 2. Salvo il suo indirizzo di memoria nel vettore
+    frames_.push_back(&tex);
+
+    // Se è il primo frame, lo imposto subito come texture corrente
     if (frames_.size() == 1) {
-        const auto& tex = data_->assets.GetAsset<sf::Texture>(texture_name);
         sprite_.setTexture(tex);
     }
 }
@@ -22,11 +25,10 @@ void AnimatedBackground::Update(float dt) {
 
     if (animation_timer_ >= frame_duration_) {
         animation_timer_ -= frame_duration_;
-        current_frame_index_ = (current_frame_index_ + 1) % frames_.size();
+        current_frame_index_ = (current_frame_index_ + 1) % frames_.size(); // Mi sposto al frame successivo
 
-        const auto& next_frame_name = frames_[current_frame_index_];
-        const auto& next_tex = data_->assets.GetAsset<sf::Texture>(next_frame_name);
-        sprite_.setTexture(next_tex);
+        // 3. Prendo il puntatore e lo dereferenzio
+        sprite_.setTexture(*frames_[current_frame_index_]);
     }
 }
 
