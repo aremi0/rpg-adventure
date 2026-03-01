@@ -34,7 +34,10 @@ Un compendio delle scelte architetturali e delle feature C++ utilizzate nel prog
 
 ---
 
-1.  [Il Loop di Gioco](cpp-review/game-design/1_loop_di_gioco.md#1-il-loop-di-gioco)
+1.  [Il Loop di Gioco e la Gestione del Tempo](cpp-review/game-design/1_loop_di_gioco.md#1-il-loop-di-gioco)
+    *   [1.1 Delta Time (`dt`) Fissa vs Variabile](cpp-review/game-design/1_loop_di_gioco.md#11-delta-time-dt-fissa-vs-variabile)
+    *   [1.2 Disaccoppiamento: Logica vs Animazione](cpp-review/game-design/1_loop_di_gioco.md#12-disaccoppiamento-logica-vs-animazione)
+    *   [1.3 L'Accumulatore di Tempo (Il trucco del resto)](cpp-review/game-design/1_loop_di_gioco.md#13-laccumulatore-di-tempo-il-trucco-del-resto)
 2.  [Paradigma ECS (Entity Component System)](cpp-review/game-design/2_paradigma_ecs_entity_component_system.md#2-paradigma-ecs-entity-component-system)
 
 ---
