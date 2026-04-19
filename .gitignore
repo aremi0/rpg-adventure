@@ -2,9 +2,13 @@
 build/
 bin/
 raw_audio/
+windows_build/libs/
+windows_build/toolchain/
+windows_build/dist/
 *.o
 *.a
 *.so
+*.zip
 
 # --- IDE (Clangd / VS Code) ---
 .cache/
