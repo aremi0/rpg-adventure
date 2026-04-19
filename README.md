@@ -32,6 +32,7 @@ You can find detailed documentation in the `doc/` directory:
 *   [4.0 Entity Component System (ECS)](doc/core/4_0_ecs.md): Explains the ECS system.
 *   [5.4.1: Dynamic Logger](doc/core/5_4_1_dynamic_logging.md): Explains the dynamic logger.
 *   [5.4.2: Visual Debug Rendering](doc/core/5_4_2_visual_debug_rendering.md): Explains the visual debug rendering.
+*   [6.0: Settings Persistence](doc/core/6_settings_persistence.md): Explains the settings persistence system and async loading.
 
 ---
 
@@ -56,7 +57,7 @@ You can find detailed documentation in the `doc/` directory:
         * ✅ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay, verrà riespansa in futuro).
 * 🔄 **Fase 6: Data-Driven Architecture & Persistence**
     * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json o yaml-cpp).
-    * ⬜ **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
+    * 🔄 **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
 * ⬜ **Fase 7: Mappa, Collisioni e Telecamera**
     * ⬜ **7.1: Setup Asset Tilemap** (Export da Tiled Editor in JSON/YAML, netta separazione: Mappa per ambienti, Entità per personaggi).
     * ⬜ **7.2: Parsing e Rendering della Tilemap** (Caricamento logico dal file e disegno).

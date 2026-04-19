@@ -30,13 +30,18 @@ void SettingRow::SetVolume(float volume) {
 // ==================== SettingsState ====================
 
 SettingsState::SettingsState(GameDataRef data)
-    : State("SettingsState"), data_(data),
-      selected_res_index_(data->resolution_index) { // Legge l'indice persistente da GameData
-        supported_resolutions_ = {
-            sf::VideoMode(800, 600),
-            sf::VideoMode(Config::Game::kWindowWidth, Config::Game::kWindowHeight),
-            sf::VideoMode(1280, 720)
-        };
+    : State("SettingsState"), data_(data) {
+        // Costruisce le risoluzioni supportate dalla whitelist in Constants.hpp
+        for (const auto& [w, h] : Config::Settings::kSupportedResolutions) {
+            supported_resolutions_.emplace_back(w, h);
+        }
+
+        // Copia le impostazioni correnti come base di lavoro temporanea
+        temp_settings_ = data_->config.GetSettings();
+
+        // Calcola gli indici di risoluzione
+        applied_res_index_ = FindResolutionIndex(temp_settings_.resolution);
+        selected_res_index_ = applied_res_index_;
     }
 
 SettingRow SettingsState::MakeSettingRow(
@@ -47,7 +52,7 @@ SettingRow SettingsState::MakeSettingRow(
 {
     // Layout: centro della risoluzione logica, larghezza totale ~340px
     // [◀ 40px] [gap 5px] [label 250px] [gap 5px] [▶ 40px]
-    float center_x = Config::Game::kWindowWidth / 2.0f;
+    float center_x = Config::Game::kLogicalWidth / 2.0f;
     constexpr float arrow_w = 40.0f;
     constexpr float label_w = 250.0f;
     constexpr float gap = 5.0f;
@@ -109,25 +114,25 @@ void SettingsState::Init() {
 
     // ----------------- Creating Settings rows
     const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
-    const float ui_vol = data_->audio.GetUiVolume();
+    const float ui_vol = temp_settings_.audio.GetUiVolume();
 
     float start_y = 200.0f;
     float spacing = 65.0f;
 
     master_row_ = MakeSettingRow(start_y, 
-        std::format("{}: {}%", Config::Settings::kMasterVolumeName, data_->audio.master),
+        std::format("{}: {}%", Config::Settings::kMasterVolumeName, temp_settings_.audio.master),
         font, hover_sfx, click_sfx, ui_vol);
 
     music_row_ = MakeSettingRow(start_y + spacing, 
-        std::format("{}: {}%", Config::Settings::kMusicVolumeName, data_->audio.music),
+        std::format("{}: {}%", Config::Settings::kMusicVolumeName, temp_settings_.audio.music),
         font, hover_sfx, click_sfx, ui_vol);
 
     sfx_row_ = MakeSettingRow(start_y + spacing * 2, 
-        std::format("{}: {}%", Config::Settings::kSfxVolumeName, data_->audio.sfx),
+        std::format("{}: {}%", Config::Settings::kSfxVolumeName, temp_settings_.audio.sfx),
         font, hover_sfx, click_sfx, ui_vol);
 
     ui_row_ = MakeSettingRow(start_y + spacing * 3, 
-        std::format("{}: {}%", Config::Settings::kUiVolumeName, data_->audio.ui),
+        std::format("{}: {}%", Config::Settings::kUiVolumeName, temp_settings_.audio.ui),
         font, hover_sfx, click_sfx, ui_vol);
 
     res_row_ = MakeSettingRow(start_y + spacing * 4,
@@ -137,7 +142,7 @@ void SettingsState::Init() {
         font, hover_sfx, click_sfx, ui_vol);
 
     // Bottone Indietro (centrato, sotto le righe)
-    float center_x = Config::Game::kWindowWidth / 2.0f - 150.0f;
+    float center_x = Config::Game::kLogicalWidth / 2.0f - 150.0f;
     back_button_ = std::make_unique<Button>(
         center_x, start_y + spacing * 5, 300.0f, 50.0f, font,
         std::string(Config::Settings::kIndietroName), 24,
@@ -169,34 +174,34 @@ void SettingsState::Update(float dt) {
     sfx_row_.Update(mouse_pos);
     ui_row_.Update(mouse_pos);
     res_row_.Update(mouse_pos);
-    // Se la risoluzione selezionata è diversa da quella attuale, la label diventa interattiva
-    if (selected_res_index_ != data_->resolution_index) {
+    // Se la risoluzione selezionata è diversa da quella applicata, la label diventa interattiva
+    if (selected_res_index_ != applied_res_index_) {
         res_row_.label->Update(mouse_pos);
     } else {
         res_row_.label->Reset(); // Pulisce lo stato quando inattivo per evitare click intrappolati
     }
     back_button_->Update(mouse_pos);
 
-    // Logica dei click — Volume
+    // Logica dei click — Volume (modifica solo temp_settings_ in RAM)
     if (master_row_.left->IsPressed())
-        AdjustVolume(data_->audio.master, -Config::Settings::kVolumeStep, Config::Settings::kMasterVolumeName, *master_row_.label);
+        AdjustVolume(temp_settings_.audio.master, -Config::Settings::kVolumeStep, Config::Settings::kMasterVolumeName, *master_row_.label);
     if (master_row_.right->IsPressed())
-        AdjustVolume(data_->audio.master, +Config::Settings::kVolumeStep, Config::Settings::kMasterVolumeName, *master_row_.label);
+        AdjustVolume(temp_settings_.audio.master, +Config::Settings::kVolumeStep, Config::Settings::kMasterVolumeName, *master_row_.label);
 
     if (music_row_.left->IsPressed())
-        AdjustVolume(data_->audio.music, -Config::Settings::kVolumeStep, Config::Settings::kMusicVolumeName, *music_row_.label);
+        AdjustVolume(temp_settings_.audio.music, -Config::Settings::kVolumeStep, Config::Settings::kMusicVolumeName, *music_row_.label);
     if (music_row_.right->IsPressed())
-        AdjustVolume(data_->audio.music, +Config::Settings::kVolumeStep, Config::Settings::kMusicVolumeName, *music_row_.label);
+        AdjustVolume(temp_settings_.audio.music, +Config::Settings::kVolumeStep, Config::Settings::kMusicVolumeName, *music_row_.label);
 
     if (sfx_row_.left->IsPressed())
-        AdjustVolume(data_->audio.sfx, -Config::Settings::kVolumeStep, Config::Settings::kSfxVolumeName, *sfx_row_.label);
+        AdjustVolume(temp_settings_.audio.sfx, -Config::Settings::kVolumeStep, Config::Settings::kSfxVolumeName, *sfx_row_.label);
     if (sfx_row_.right->IsPressed())
-        AdjustVolume(data_->audio.sfx, +Config::Settings::kVolumeStep, Config::Settings::kSfxVolumeName, *sfx_row_.label);
+        AdjustVolume(temp_settings_.audio.sfx, +Config::Settings::kVolumeStep, Config::Settings::kSfxVolumeName, *sfx_row_.label);
 
     if (ui_row_.left->IsPressed())
-        AdjustVolume(data_->audio.ui, -Config::Settings::kVolumeStep, Config::Settings::kUiVolumeName, *ui_row_.label);
+        AdjustVolume(temp_settings_.audio.ui, -Config::Settings::kVolumeStep, Config::Settings::kUiVolumeName, *ui_row_.label);
     if (ui_row_.right->IsPressed())
-        AdjustVolume(data_->audio.ui, +Config::Settings::kVolumeStep, Config::Settings::kUiVolumeName, *ui_row_.label);
+        AdjustVolume(temp_settings_.audio.ui, +Config::Settings::kVolumeStep, Config::Settings::kUiVolumeName, *ui_row_.label);
 
     // Logica dei click — Risoluzione
     if (res_row_.left->IsPressed()) {
@@ -206,22 +211,23 @@ void SettingsState::Update(float dt) {
         NextResolution();
     }
     // Click sulla label verde = Applica la risoluzione selezionata
-    if (selected_res_index_ != data_->resolution_index && res_row_.label->IsPressed()) {
+    if (selected_res_index_ != applied_res_index_ && res_row_.label->IsPressed()) {
         ApplyResolution();
     }
 
-    // Bottone Indietro
+    // Bottone Indietro: salva tutto e torna al menu
     if (back_button_->IsPressed()) {
+        SaveToConfig();
         Logger::Trace("Ritorno al menu principale");
         data_->machine.RemoveState(); // Toglie SettingsState e fa il Resume di MainMenuState
     }
 }
 
 void SettingsState::Draw() {
-    // Usiamo le costanti della Risoluzione Logica invece della grandezza fisica della finestra
+    // Usiamo le costanti della Risoluzione Logica per l'overlay
     sf::RectangleShape overlay(sf::Vector2f(
-        static_cast<float>(Config::Game::kWindowWidth), 
-        static_cast<float>(Config::Game::kWindowHeight)
+        static_cast<float>(Config::Game::kLogicalWidth), 
+        static_cast<float>(Config::Game::kLogicalHeight)
     ));
     overlay.setFillColor(sf::Color(0, 0, 0, 200));
     data_->window.draw(overlay);
@@ -247,14 +253,14 @@ void SettingsState::AdjustVolume(int& channel, int delta, const std::string_view
 }
 
 void SettingsState::ApplyVolumes() {
-    // Aggiorna volume della musica in riproduzione
+    // Aggiorna volume della musica in riproduzione (feedback immediato)
     if (data_->assets.HasMusic(std::string(Config::Game::kMusicName))) {
         sf::Music& music = data_->assets.GetMusic(std::string(Config::Game::kMusicName));
-        music.setVolume(data_->audio.GetMusicVolume());
+        music.setVolume(temp_settings_.audio.GetMusicVolume());
     }
 
     // Aggiorna volume dei suoni UI su tutte le frecce
-    float ui_vol = data_->audio.GetUiVolume();
+    float ui_vol = temp_settings_.audio.GetUiVolume();
     master_row_.SetVolume(ui_vol);
     music_row_.SetVolume(ui_vol);
     sfx_row_.SetVolume(ui_vol);
@@ -279,12 +285,17 @@ void SettingsState::NextResolution() {
 
 void SettingsState::ApplyResolution() {
     // Applica effettivamente la risoluzione selezionata
-    data_->resolution_index = selected_res_index_;
+    applied_res_index_ = selected_res_index_;
     auto new_mode = supported_resolutions_[selected_res_index_];
+
+    // Aggiorna la risoluzione nella copia temporanea
+    temp_settings_.resolution = {new_mode.width, new_mode.height};
 
     // Ricrea la finestra con la nuova risoluzione
     data_->window.create(new_mode, std::string(Config::Game::kWindowName));
-    sf::View view(sf::FloatRect(0, 0, Config::Game::kWindowWidth, Config::Game::kWindowHeight));
+
+    // Reimosta la View logica fissa (i calcoli UI restano invariati)
+    sf::View view(sf::FloatRect(0, 0, Config::Game::kLogicalWidth, Config::Game::kLogicalHeight));
     data_->window.setView(view);
 
     Logger::Info("Risoluzione applicata: {}x{}", new_mode.width, new_mode.height);
@@ -294,8 +305,8 @@ void SettingsState::ApplyResolution() {
 void SettingsState::UpdateResLabel() {
     auto mode = supported_resolutions_[selected_res_index_];
 
-    if (selected_res_index_ != data_->resolution_index) {
-        // Risoluzione diversa da quella attuale → label verde "Applica XxY"
+    if (selected_res_index_ != applied_res_index_) {
+        // Risoluzione diversa da quella applicata → label verde "Applica XxY"
         res_row_.label->SetText(std::format("Applica {}x{}", mode.width, mode.height));
         res_row_.label->SetColors(
             Config::GUI::kIdleGreenCol, 
@@ -303,7 +314,7 @@ void SettingsState::UpdateResLabel() {
             Config::GUI::kActiveGreenCol
         );
     } else {
-        // Risoluzione uguale a quella attuale → label grigia normale
+        // Risoluzione uguale a quella applicata → label grigia normale
         res_row_.label->SetText(std::format("{}: {}x{}", Config::Settings::kRisoluzioneName, mode.width, mode.height));
         res_row_.label->SetColors(
             Config::GUI::kLabelCol, 
@@ -311,4 +322,26 @@ void SettingsState::UpdateResLabel() {
             Config::GUI::kLabelCol
         );
     }
+}
+
+void SettingsState::SaveToConfig() {
+    // Trasferisce le impostazioni temporanee al ConfigManager e salva su disco
+    data_->config.SetSettings(temp_settings_);
+    auto result = data_->config.Save();
+    if (!result) {
+        Logger::Error("Errore nel salvataggio delle impostazioni: {}", result.error());
+    }
+}
+
+int SettingsState::FindResolutionIndex(sf::Vector2u resolution) const {
+    for (int i = 0; i < static_cast<int>(supported_resolutions_.size()); ++i) {
+        if (supported_resolutions_[i].width == resolution.x &&
+            supported_resolutions_[i].height == resolution.y) {
+            return i;
+        }
+    }
+    // Se non trovata, ritorna l'indice del default (1024x768 = indice 1)
+    Logger::Warn("Risoluzione {}x{} non trovata nella lista supportata, uso indice 1",
+                 resolution.x, resolution.y);
+    return 1;
 }

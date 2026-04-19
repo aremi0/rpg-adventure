@@ -5,14 +5,21 @@
 #include <SFML/Audio.hpp>
 
 Game::Game() : data_(std::make_shared<GameData>()) {
-    // Crea la finestra di gioco
+    // 1. Carica le impostazioni con fallback chain (user → default → hardcoded)
+    data_->config.Load();
+    const auto& settings = data_->config.GetSettings();
+
+    // 2. Crea la finestra con la risoluzione dal config
     data_->window.create(
-        sf::VideoMode(
-            {
-                static_cast<unsigned>(Config::Game::kWindowWidth), 
-                static_cast<unsigned>(Config::Game::kWindowHeight)
-            }), 
+        sf::VideoMode(settings.resolution.x, settings.resolution.y),
         std::string(Config::Game::kWindowName));
+
+    // 3. Imposta la View logica fissa (1024x768) — indipendente dalla finestra
+    sf::View logical_view(sf::FloatRect(
+        0, 0,
+        Config::Game::kLogicalWidth,
+        Config::Game::kLogicalHeight));
+    data_->window.setView(logical_view);
 
     // Warmup OpenAL: pre-inizializza il driver audio per eliminare la latenza al primo suono
     if constexpr (Config::Game::kAudioWarmup) {

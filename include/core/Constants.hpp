@@ -2,6 +2,8 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <string_view>
+#include <array>
+#include <utility>
 #include "utils/LogLevel.hpp"
 
 namespace Config {
@@ -77,8 +79,16 @@ namespace Config {
     }
 
     namespace Settings {
-        inline constexpr int kDefaultWidth = 1024;
-        inline constexpr int kDefaultHeight = 768;
+        // Risoluzione di default della FINESTRA (non la risoluzione logica!)
+        inline constexpr unsigned int kDefaultWindowWidth = 1024;
+        inline constexpr unsigned int kDefaultWindowHeight = 768;
+
+        // Risoluzioni finestra supportate (whitelist per validazione)
+        inline constexpr std::array<std::pair<unsigned int, unsigned int>, 3> kSupportedResolutions = {{
+            {800, 600},
+            {1024, 768},
+            {1280, 720}
+        }};
 
         inline constexpr std::string_view kRisoluzioneName = "Risoluzione";
         inline constexpr std::string_view kIndietroName = "Indietro";

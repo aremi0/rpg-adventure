@@ -6,6 +6,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <format>
+#include <future>
 
 MainMenuState::MainMenuState(GameDataRef data) 
     : State("MainMenuState"),
@@ -29,26 +30,48 @@ void MainMenuState::Init() {
     test_sprite_.setPosition(100, 100);
     test_sprite_.setScale(2.0f, 2.0f);
 
-    // ----------------- Loading MainMenu background frames
-    // 1. Carico i frame del background
-    for (int i = 0; i < Config::MainMenu::kBackgroundFrames; ++i) {
-        // Genera i nomi
-        std::string texture_name = std::format("{}{}", Config::MainMenu::kBackgroundFrameName, i);
-        std::string file_path = std::format("{}{}.png", Config::MainMenu::kBackgroundFramePath, texture_name);
+    // ----------------- Loading MainMenu background frames (ASYNC)
+    // Fase 1: Lancio decodifica PNG in parallelo (CPU/I/O — thread-safe)
+    struct FrameTask {
+        std::string name;
+        std::string path;
+    };
 
-        // Carica i frame
-        auto bg_frame_result = data_->assets.LoadAsset<sf::Texture>(texture_name, file_path);
-        
-        // Aggiungi al background (AnimatedBackground gestisce internamente se la texture è valida)
-        // Nota: LoadAsset ritorna void se successo, o errore. 
-        // Se ha successo, la texture è nel manager e possiamo aggiungere il NOME al background.
-        if (bg_frame_result) {
-            background_->AddFrame(texture_name);
+    std::vector<FrameTask> frame_tasks;
+    frame_tasks.reserve(Config::MainMenu::kBackgroundFrames);
+    for (int i = 0; i < Config::MainMenu::kBackgroundFrames; ++i) {
+        std::string name = std::format("{}{}", Config::MainMenu::kBackgroundFrameName, i);
+        frame_tasks.push_back({
+            .name = name,
+            .path = std::format("{}{}.png", Config::MainMenu::kBackgroundFramePath, name)
+        });
+    }
+
+    std::vector<std::future<sf::Image>> image_futures;
+    image_futures.reserve(frame_tasks.size());
+    for (const auto& task : frame_tasks) {
+        image_futures.push_back(
+            std::async(std::launch::async, [path = task.path]() {
+                sf::Image img;
+                img.loadFromFile(path);
+                return img;
+            })
+        );
+    }
+
+    // Fase 2: Upload textures sulla GPU dal thread principale (richiede OpenGL)
+    for (size_t i = 0; i < frame_tasks.size(); ++i) {
+        sf::Image img = image_futures[i].get(); // Blocca finché l'immagine è pronta
+        if (img.getSize().x > 0) {
+            auto result = data_->assets.LoadTextureFromImage(frame_tasks[i].name, img);
+            if (result) {
+                background_->AddFrame(frame_tasks[i].name);
+            }
         }
     }
 
     // 2. Adatto background alla finestra
-    background_->Resize(sf::Vector2u(Config::Game::kWindowWidth, Config::Game::kWindowHeight));
+    background_->Resize(sf::Vector2u(Config::Game::kLogicalWidth, Config::Game::kLogicalHeight));
     
     // ----------------- Loading Game musics
     auto music_res = data_->assets.LoadMusic(
@@ -58,7 +81,7 @@ void MainMenuState::Init() {
     if (music_res) {
         sf::Music& music = data_->assets.GetMusic(std::string(Config::Game::kMusicName));
         music.setLoop(true);
-        music.setVolume(data_->audio.GetMusicVolume());
+        music.setVolume(data_->config.GetSettings().audio.GetMusicVolume());
         music.play();
     }
 
@@ -89,7 +112,7 @@ void MainMenuState::Init() {
         const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
         
         // Layout: centro della risoluzione logica, larghezza totale ~340px
-        float center_x = Config::Game::kWindowWidth / 2.0f - 150.0f;
+        float center_x = Config::Game::kLogicalWidth / 2.0f - 150.0f;
         float start_y = 250.0f;
         float spacing = 80.0f;
 
@@ -98,7 +121,7 @@ void MainMenuState::Init() {
             std::string(Config::MainMenu::kNuovaPartitaName), 24, 
             Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
             hover_sfx, click_sfx,
-            data_->audio.GetUiVolume()
+            data_->config.GetSettings().audio.GetUiVolume()
         );
 
         settings_button_ = std::make_unique<Button>(
@@ -106,7 +129,7 @@ void MainMenuState::Init() {
             std::string(Config::MainMenu::kImpostazioniName), 24, 
             Config::GUI::kIdleCol, Config::GUI::kHoverCol, Config::GUI::kActiveCol,
             hover_sfx, click_sfx,
-            data_->audio.GetUiVolume()
+            data_->config.GetSettings().audio.GetUiVolume()
         );
 
         exit_button_ = std::make_unique<Button>(
@@ -114,7 +137,7 @@ void MainMenuState::Init() {
             std::string(Config::MainMenu::kEsciName), 24,
             Config::GUI::kIdleRedCol, Config::GUI::kHoverRedCol, Config::GUI::kActiveRedCol,
             hover_sfx, click_sfx,
-            data_->audio.GetUiVolume()
+            data_->config.GetSettings().audio.GetUiVolume()
         );
     }
 }
@@ -189,14 +212,14 @@ void MainMenuState::Resume() {
     is_paused_ = false;
 
     // Riapplica i volumi aggiornati dal SettingsState
-    float ui_vol = data_->audio.GetUiVolume();
+    float ui_vol = data_->config.GetSettings().audio.GetUiVolume();
     play_button_->SetVolume(ui_vol);
     settings_button_->SetVolume(ui_vol);
     exit_button_->SetVolume(ui_vol);
 
     if (data_->assets.HasMusic(std::string(Config::Game::kMusicName))) {
         data_->assets.GetMusic(std::string(Config::Game::kMusicName))
-            .setVolume(data_->audio.GetMusicVolume());
+            .setVolume(data_->config.GetSettings().audio.GetMusicVolume());
     }
 
     Logger::Trace("{} messo in ripresa (Mostro bottoni)", this->GetStateName());

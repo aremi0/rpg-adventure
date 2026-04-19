@@ -55,8 +55,8 @@ void GameState::Init() {
     // Aggiungiamo il Transform: lo mettiamo al centro della risoluzione logica
     auto& transform = data_->registry.emplace<TransformComponent>(hero_);
     transform.position = sf::Vector2f(
-        Config::Game::kWindowWidth / 2.0f, 
-        Config::Game::kWindowHeight / 2.0f
+        Config::Game::kLogicalWidth / 2.0f, 
+        Config::Game::kLogicalHeight / 2.0f
     );
     transform.elevation = 0.0f;
     transform.scale = sf::Vector2f(1.0f, 1.0f); // Lo facciamo un po' più grande

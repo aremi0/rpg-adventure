@@ -1,11 +1,11 @@
 {
   "resolution": {
-    "width": 1280,
-    "height": 720
+    "width": 1024,
+    "height": 768
   },
   "volume": {
     "master": 100,
-    "music": 100,
+    "music": 25,
     "sfx": 100,
     "ui": 100
   }

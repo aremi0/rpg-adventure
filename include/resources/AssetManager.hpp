@@ -108,9 +108,32 @@ class AssetManager {
             return it->second;
         }
 
+
         template<typename T>
         bool HasAsset(const std::string& name) const {
             return GetStorage<T>().contains(name);
+        }
+
+        // Crea una texture da un'immagine già decodificata in RAM.
+        // Usato nel pattern di caricamento asincrono:
+        //   - sf::Image caricata su thread di lavoro (CPU/I/O, thread-safe)
+        //   - sf::Texture creata sul thread principale (richiede contesto OpenGL)
+        std::expected<void, AssetError> LoadTextureFromImage(
+            const std::string& name, const sf::Image& image) {
+            if (textures_.contains(name)) {
+                Logger::Trace("Texture '{}' già in memoria. Skip.", name);
+                return {};
+            }
+
+            sf::Texture tex;
+            if (!tex.loadFromImage(image)) {
+                Logger::Error("Impossibile creare texture '{}' da immagine", name);
+                return std::unexpected(AssetError::CorruptedFile);
+            }
+
+            textures_[name] = std::move(tex);
+            Logger::Trace("Texture '{}' creata da immagine precaricata", name);
+            return {};
         }
 
         bool HasMusic(const std::string& name) const {

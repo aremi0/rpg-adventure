@@ -39,11 +39,12 @@ class SettingsState : public State {
 
         sf::Sprite background_sprite_;
 
-        // Impostazioni temporanee (applicate in RAM per feedback, ma salvate su disco solo al click su Indietro)
+        // Copia di lavoro delle impostazioni (modificate in RAM, salvate solo su "Indietro")
         UserSettings temp_settings_;
 
         // Risoluzione
-        int selected_res_index_;  // Indice selezionato (sfogliato con frecce, non ancora applicato)
+        int selected_res_index_;  // Indice sfogliato con frecce (navigazione)
+        int applied_res_index_;   // Indice applicato alla finestra
         std::vector<sf::VideoMode> supported_resolutions_;
 
         // Helper
@@ -55,8 +56,11 @@ class SettingsState : public State {
         void AdjustVolume(int& channel, int delta, const std::string_view& name, Button& label);
         void PrevResolution();    // Sfoglia alla risoluzione precedente
         void NextResolution();    // Sfoglia alla risoluzione successiva
-        void ApplyResolution();   // Applica la risoluzione selezionata (RAM)
+        void ApplyResolution();   // Applica la risoluzione selezionata (RAM + finestra)
         void UpdateResLabel();    // Aggiorna testo/colore della label risoluzione
-        void ApplyVolumes();      // Applica volumi (RAM)
-        void SaveToConfig();      // Conferma e salva su disco
+        void ApplyVolumes();      // Applica volumi (feedback immediato in RAM)
+        void SaveToConfig();      // Conferma: salva temp_settings_ nel ConfigManager e su disco
+
+        // Trova l'indice della risoluzione nella lista supportata
+        [[nodiscard]] int FindResolutionIndex(sf::Vector2u resolution) const;
 };

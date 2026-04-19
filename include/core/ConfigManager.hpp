@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
 #include <string_view>
 #include <expected>
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 #include "audio/AudioSettings.hpp"
 
 // Struttura per contenere tutti i settaggi utente
@@ -18,32 +17,35 @@ class ConfigManager {
     static constexpr std::string_view kSavesDir = "saves";
     static constexpr std::string_view kUserConfigPath = "saves/user_settings.json";
 
-    ConfigManager();
+    ConfigManager() = default;
     ~ConfigManager() = default;
 
-    // Carica le configurazioni (prima da user_settings, se fallisce da default)
-    std::expected<void, std::string> Load();
-    
-    // Salva le configurazioni correnti in user_settings.json
+    // Carica le configurazioni con catena di fallback:
+    // 1. saves/user_settings.json
+    // 2. assets/config/default_settings.json
+    // 3. Constants.hpp (hardcoded)
+    void Load();
+
+    // Salva le configurazioni correnti in saves/user_settings.json
     std::expected<void, std::string> Save() const;
 
     [[nodiscard]] const UserSettings& GetSettings() const;
 
-    // Aggiorna le impostazioni solo in RAM
+    // Aggiorna le impostazioni solo in RAM (senza salvare su disco)
     void SetSettings(const UserSettings& new_settings);
-
-    // Aggiorna in RAM e Salva immediatamente su disco
-    std::expected<void, std::string> UpdateSettings(const UserSettings& new_settings);
-
-    // Converte width e height in resolution index per comodità (se necessario)
-    // O meglio, lascia gestire questa logica a GameData / SettingsState.
 
  private:
     UserSettings current_settings_;
 
-    // Metodi helper interni
-    void EnsureSavesDirectoryExists_() const;
-    void LoadFromFallback_();
-    bool ParseJsonFile_(const std::string& path);
-    void PopulateFromJson_(const std::string& json_str); // usa nlohmann/json internamente
+    // Tenta il parsing di un file JSON e ritorna UserSettings o un errore
+    [[nodiscard]] std::expected<UserSettings, std::string> LoadFromFile(std::string_view path) const;
+
+    // Costruisce le impostazioni hardcoded da Constants.hpp (ultima risorsa)
+    [[nodiscard]] UserSettings BuildHardcodedDefaults() const;
+
+    // Valida e corregge le impostazioni (clampa volumi, verifica risoluzione)
+    void Validate(UserSettings& settings) const;
+
+    // Crea la directory saves/ se non esiste
+    void EnsureSavesDirectoryExists() const;
 };
