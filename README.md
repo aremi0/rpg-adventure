@@ -54,15 +54,19 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **5.4: Advanced Debugging Tools**
         * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei log-level).
         * ✅ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay, verrà riespansa in futuro).
-* 🔄 **Fase 6: Mappa, Collisioni e Telecamera**
-    * 🔄 **6.1: Parsing della Tilemap**
-    * ⬜ **6.2: Rendering della Mappa** (Disegnare il mondo sotto l'eroe).
-    * ⬜ **6.3: Collider Component & System**
-    * ⬜ **6.4: Camera System** (La telecamera segue l'eroe che si muove nel mondo).
-    * ⬜ **6.5: Expanded Debug Render System** (Aggiunta di eventuali nuove metriche di debug).
-* ⬜ **Fase 7: Pathfinding & Intelligenza**
-    * ⬜ **7.1: Mouse Navigation System (A* Pathfinding)** *(Opzionale)* (Movimento Punta e Clicca).
-    * ⬜ **7.2: RPG Logic** (NPC, Nemici, HP).
+* 🔄 **Fase 6: Data-Driven Architecture & Persistence**
+    * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json o yaml-cpp).
+    * ⬜ **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
+* ⬜ **Fase 7: Mappa, Collisioni e Telecamera**
+    * ⬜ **7.1: Setup Asset Tilemap** (Export da Tiled Editor in JSON/YAML, netta separazione: Mappa per ambienti, Entità per personaggi).
+    * ⬜ **7.2: Parsing e Rendering della Tilemap** (Caricamento logico dal file e disegno).
+    * ⬜ **7.3: Box Collider Component & System** (Collisioni mappa/entità).
+    * ⬜ **7.4: Camera System** (La telecamera segue l'eroe).
+    * ⬜ **7.5: Expanded Debug Render System** (Overlay per hitbox e griglia tilemap).
+* ⬜ **Fase 8: Animazioni, Pathfinding & Intelligenza**
+    * ⬜ **8.1: Entity Animation System** (`AnimatorComponent`, per ciclare agilmente i vari frames dei personaggi).
+    * ⬜ **8.2: Mouse Navigation System (A* Pathfinding)** *(Opzionale)* (Movimento Punta e Clicca).
+    * ⬜ **8.3: RPG Core Logic** (NPC, Nemici, HP).
 
 ---
 

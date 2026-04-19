@@ -9,11 +9,11 @@ namespace Config {
     namespace Game {
         // inline constexpr + string_view = Efficienza massima, zero allocazioni
         inline constexpr std::string_view kWindowName = "RPG Adventure";
-
-        // Usiamo inline constexpr per i tipi primitivi
-        inline constexpr int kWindowWidth = 1024;
-        inline constexpr int kWindowHeight = 768;
     
+        // Risoluzione logica del gioco (non la risoluzione della finestra)
+        inline constexpr unsigned int kLogicalWidth = 1024;
+        inline constexpr unsigned int kLogicalHeight = 768;
+
         inline constexpr std::string_view kFontName = "vt323";
         inline constexpr std::string_view kFontPath = "assets/fonts/VT323-Regular.ttf";
 
@@ -77,6 +77,9 @@ namespace Config {
     }
 
     namespace Settings {
+        inline constexpr int kDefaultWidth = 1024;
+        inline constexpr int kDefaultHeight = 768;
+
         inline constexpr std::string_view kRisoluzioneName = "Risoluzione";
         inline constexpr std::string_view kIndietroName = "Indietro";
 

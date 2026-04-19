@@ -8,6 +8,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Cerca SFML 2.6
 find_package(SFML 2.6 COMPONENTS graphics window system audio REQUIRED)
 
+# Fetch nlohmann_json
+include(FetchContent)
+FetchContent_Declare(json
+    URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
+)
+FetchContent_MakeAvailable(json)
+
 # Trova AUTOMATICAMENTE tutti i file .cpp nella cartella src
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
@@ -18,4 +25,4 @@ add_executable(game ${SOURCES})
 target_include_directories(game PUBLIC include)
 
 # Link alle librerie
-target_link_libraries(game sfml-graphics sfml-window sfml-system sfml-audio)
+target_link_libraries(game sfml-graphics sfml-window sfml-system sfml-audio nlohmann_json::nlohmann_json)

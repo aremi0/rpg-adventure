@@ -2,16 +2,15 @@
 #include <SFML/Graphics.hpp>
 #include "StateMachine.hpp"
 #include "resources/AssetManager.hpp"
-#include "audio/AudioSettings.hpp"
 #include <entt/entt.hpp>
+#include "core/ConfigManager.hpp"
 
 struct GameData {
     sf::RenderWindow window;
     StateMachine machine;
     AssetManager assets;
     entt::registry registry;
-    AudioSettings audio;
-    int resolution_index = 1; // Indice della risoluzione attuale (persiste tra le ricreazioni degli stati)
+    ConfigManager config;
     // Qui aggiungeremo in futuro AssetManager e InputManager
 };
 
