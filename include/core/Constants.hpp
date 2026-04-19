@@ -1,6 +1,8 @@
 #pragma once
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <string_view>
+#include "utils/LogLevel.hpp"
 
 namespace Config {
 
@@ -33,6 +35,13 @@ namespace Config {
             inline constexpr std::string_view kHeroTexName = "hero_tex";
             inline constexpr std::string_view kHeroTexPath = "assets/textures/hero.png";
         }
+    }
+
+    namespace Debug {
+        // Permette di ciclare i log con F1 in gioco
+        inline constexpr bool kEnableLogSwitching = true;
+        inline constexpr sf::Keyboard::Key kLogSwitchKey = sf::Keyboard::F1;
+        inline constexpr LogLevel kDefaultLogLevel = LogLevel::Debug;
     }
 
     namespace GUI {

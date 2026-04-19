@@ -83,6 +83,11 @@ void GameState::HandleInput() {
             Logger::Info("Uscita dalla partita, torno al Menu...");
             data_->machine.AddState(std::make_unique<MainMenuState>(data_), true);
         }
+
+        // Tasto per ciclare il livello di log
+        if (Config::Debug::kEnableLogSwitching && event.type == sf::Event::KeyPressed && event.key.code == Config::Debug::kLogSwitchKey) {
+            Logger::CycleLevel();
+        }
     }
 }
 

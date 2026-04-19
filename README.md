@@ -30,6 +30,7 @@ You can find detailed documentation in the `doc/` directory:
 *   [3.6 Audio System & Settings UI](doc/core/3_6_audio_system_and_settings_ui.md): Explains the audio system and settings UI.
 *   [3.7 Audio Asset Pipeline](doc/core/3_7_audio_asset_pipeline.md): Explains the audio asset pipeline.
 *   [4.0 Entity Component System (ECS)](doc/core/4_0_ecs.md): Explains the ECS system.
+*   [5.4.1: Dynamic Logger](doc/core/5_4_1_dynamic_logging.md): Explains the dynamic logger.
 
 ---
 
@@ -50,7 +51,7 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **5.2: Player Input System** (Legge la tastiera e imposta la direzione).
     * ✅ **5.3: Movement System** (Applica la velocità alla posizione in modo fluido).
     * 🔄 **5.4: Advanced Debugging Tools**
-        * ⬜ **5.4.1: Dynamic Logger** (Switch in tempo reale dei livelli di log tramite F1).
+        * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei livelli di log tramite F1).
         * ⬜ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay attivabile con F2).
     * 🔄 **5.5: Mouse Navigation System** *(Opzionale)* (Movimento Punta e Clicca).
 * ⬜ **Fase 6: Tilemap & Collisioni**

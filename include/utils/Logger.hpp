@@ -4,10 +4,8 @@
 #include <chrono>
 #include <format>
 #include <source_location>
-
-enum class LogLevel {
-    Trace, Debug, Info, Warning, Error
-};
+#include "utils/LogLevel.hpp"
+#include "core/Constants.hpp"
 
 struct LogFormat {
     std::string_view fmt;
@@ -26,6 +24,7 @@ class Logger {
         static void log(LogLevel level, 
                         LogFormat format, 
                         Args&&... args) {
+            if (level < current_level_) return;
             
             std::string_view level_str;
             std::string_view color;
@@ -36,6 +35,7 @@ class Logger {
                 case LogLevel::Info:    level_str = "[INFO] ";   color = "\033[32m"; break;
                 case LogLevel::Warning: level_str = "[WARN] ";   color = "\033[33m"; break;
                 case LogLevel::Error:   level_str = "[ERROR]";   color = "\033[31m"; break;
+                case LogLevel::None:    return;
             }
 
             auto now = std::chrono::system_clock::now();
@@ -88,4 +88,34 @@ class Logger {
         template<typename... Args> 
         static void Error(LogFormat fmt, Args&&... args) 
         { log(LogLevel::Error, fmt, std::forward<Args>(args)...); }
+
+        static void SetLevel(LogLevel level) {
+            current_level_ = level;
+        }
+
+        static void CycleLevel() {
+            int next = static_cast<int>(current_level_) + 1;
+
+            if (next > static_cast<int>(LogLevel::None)) {
+                next = static_cast<int>(LogLevel::Trace);
+            }
+            current_level_ = static_cast<LogLevel>(next);
+            
+            std::print("\033[35m[LOGGER] Livello di Log impostato a: {}\033[0m\n", LevelToString(current_level_));
+        }
+
+    private:
+        static inline LogLevel current_level_ = Config::Debug::kDefaultLogLevel;
+
+        static std::string_view LevelToString(LogLevel level) {
+            switch (level) {
+                case LogLevel::Trace:   return "TRACE";
+                case LogLevel::Debug:   return "DEBUG";
+                case LogLevel::Info:    return "INFO";
+                case LogLevel::Warning: return "WARN";
+                case LogLevel::Error:   return "ERROR";
+                case LogLevel::None:    return "NONE (Silenced)";
+                default:                return "UNKNOWN";
+            }
+        }
 };
