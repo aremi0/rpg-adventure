@@ -31,6 +31,7 @@ You can find detailed documentation in the `doc/` directory:
 *   [3.7 Audio Asset Pipeline](doc/core/3_7_audio_asset_pipeline.md): Explains the audio asset pipeline.
 *   [4.0 Entity Component System (ECS)](doc/core/4_0_ecs.md): Explains the ECS system.
 *   [5.4.1: Dynamic Logger](doc/core/5_4_1_dynamic_logging.md): Explains the dynamic logger.
+*   [5.4.2: Visual Debug Rendering](doc/core/5_4_2_visual_debug_rendering.md): Explains the visual debug rendering.
 
 ---
 
@@ -46,16 +47,22 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **4.2: Base Component**
     * ✅ **4.3: Render System**
     * ✅ **4.4: Game State & First Entoty**
-* 🔄 **Fase 5: Input & Movimento**
+* ✅ **Fase 5: Input, Movimento e Tools**
     * ✅ **5.1: Nuovi Componenti** (`VelocityComponent` e `PlayerComponent`).
     * ✅ **5.2: Player Input System** (Legge la tastiera e imposta la direzione).
     * ✅ **5.3: Movement System** (Applica la velocità alla posizione in modo fluido).
-    * 🔄 **5.4: Advanced Debugging Tools**
-        * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei livelli di log tramite F1).
-        * ⬜ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay attivabile con F2).
-    * 🔄 **5.5: Mouse Navigation System** *(Opzionale)* (Movimento Punta e Clicca).
-* ⬜ **Fase 6: Tilemap & Collisioni**
-* ⬜ **Fase 7: RPG Logic & UI**
+    * ✅ **5.4: Advanced Debugging Tools**
+        * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei log-level).
+        * ✅ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay, verrà riespansa in futuro).
+* 🔄 **Fase 6: Mappa, Collisioni e Telecamera**
+    * 🔄 **6.1: Parsing della Tilemap**
+    * ⬜ **6.2: Rendering della Mappa** (Disegnare il mondo sotto l'eroe).
+    * ⬜ **6.3: Collider Component & System**
+    * ⬜ **6.4: Camera System** (La telecamera segue l'eroe che si muove nel mondo).
+    * ⬜ **6.5: Expanded Debug Render System** (Aggiunta di eventuali nuove metriche di debug).
+* ⬜ **Fase 7: Pathfinding & Intelligenza**
+    * ⬜ **7.1: Mouse Navigation System (A* Pathfinding)** *(Opzionale)* (Movimento Punta e Clicca).
+    * ⬜ **7.2: RPG Logic** (NPC, Nemici, HP).
 
 ---
 

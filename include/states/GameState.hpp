@@ -21,6 +21,7 @@ class GameState : public State {
     private:
         GameDataRef data_;
         bool is_paused_ = false;
+        bool is_debug_mode_ = false;
 
         entt::entity hero_;
 };

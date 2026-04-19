@@ -1,6 +1,7 @@
 #include "states/GameState.hpp"
 #include "states/MainMenuState.hpp"
 #include "systems/RenderSystem.hpp"
+#include "systems/DebugRenderSystem.hpp"
 #include "components/Components.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
@@ -40,6 +41,10 @@ void GameState::Init() {
     data_->assets.LoadAsset<sf::Texture>(
         std::string(Config::Game::Textures::kHeroTexName), 
         std::string(Config::Game::Textures::kHeroTexPath)
+    );
+    data_->assets.LoadAsset<sf::Font>(
+        std::string(Config::Game::kFontName), 
+        std::string(Config::Game::kFontPath)
     );
 
     // 2. CREAZIONE ENTITÀ
@@ -84,6 +89,12 @@ void GameState::HandleInput() {
             data_->machine.AddState(std::make_unique<MainMenuState>(data_), true);
         }
 
+        // Tasto per togglare il debug rendering
+        if (Config::Debug::kEnableVisualDebug && event.type == sf::Event::KeyPressed && event.key.code == Config::Debug::kVisualDebugKey) {
+            is_debug_mode_ = !is_debug_mode_;
+            Logger::Info("Debug mode toggled: {}", is_debug_mode_ ? "ON" : "OFF");
+        }
+
         // Tasto per ciclare il livello di log
         if (Config::Debug::kEnableLogSwitching && event.type == sf::Event::KeyPressed && event.key.code == Config::Debug::kLogSwitchKey) {
             Logger::CycleLevel();
@@ -105,5 +116,13 @@ void GameState::UpdateVisuals(float dt) {
 
 void GameState::Draw() {
     // MAGIA DELL'ECS: Disegniamo TUTTO il mondo di gioco in una sola riga!
+    // 1. Rendering normale del gioco
     RenderSystem::Draw(data_->registry, data_->window);
+
+    // 2. Rendering del debug (se attivo e abilitato)
+    if (Config::Debug::kEnableVisualDebug && is_debug_mode_) {
+        // Recuperiamo il font dall'asset manager
+        const sf::Font& font = data_->assets.GetAsset<sf::Font>(std::string(Config::Game::kFontName));
+        DebugRenderSystem::Draw(data_->registry, data_->window, font);
+    }
 }

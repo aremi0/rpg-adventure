@@ -38,9 +38,13 @@ namespace Config {
     }
 
     namespace Debug {
-        // Permette di ciclare i log con F1 in gioco
+        // Permette di attivare l'overlay visivo di debug in gioco
+        inline constexpr bool kEnableVisualDebug = true;
+        inline constexpr sf::Keyboard::Key kVisualDebugKey = sf::Keyboard::F1;
+
+        // Permette di ciclare il log-level in gioco
         inline constexpr bool kEnableLogSwitching = true;
-        inline constexpr sf::Keyboard::Key kLogSwitchKey = sf::Keyboard::F1;
+        inline constexpr sf::Keyboard::Key kLogSwitchKey = sf::Keyboard::F2;
         inline constexpr LogLevel kDefaultLogLevel = LogLevel::Debug;
     }
 
