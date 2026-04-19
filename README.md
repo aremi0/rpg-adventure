@@ -4,19 +4,30 @@ This is a personal 2D RPG game project created for fun and to strengthen my unde
 
 ## Requirements
 
-To build this project, you will need:
+### 1. Build Tools (Manual Setup)
+To build this project, you need the following tools installed on your system:
 
-*   **C++ Compiler**: Must support C++23.
+*   **C++ Compiler**: Must support C++23 (GCC 13+, Clang 16+, or the provided LLVM-MinGW for Windows).
 *   **CMake**: Version 3.22 or higher.
-*   **SFML**: Simple and Fast Multimedia Library (Graphics, Window, System, Audio modules).
-*   **EnTT**: Open-source, header-only Entity Component System (ECS) library.
+*   **Git**: Required by CMake to download dependencies.
+*   **Audio Pipeline Tools**: `zsh` and `ffmpeg` (only needed for `normalize_audio.sh`).
 
-## How to Build and Run
+### 2. Linux System Dependencies
+If you are building natively on Linux (including WSL2), you must install these development libraries for SFML to interact with the OS:
+```bash
+sudo apt update && sudo apt install -y \
+    libudev-dev libfreetype-dev libx11-dev \
+    libxrandr-dev libxcursor-dev libxi-dev \
+    libgl1-mesa-dev libglu1-mesa-dev libasound2-dev \
+    libpulse-dev libopenal-dev libvorbis-dev libflac-dev
+```
 
-### 1. System Requirements
-Ensure that **SFML (>= 2.6)** and **EnTT** are installed on your system. Additionally, **zsh** and **ffmpeg** are required for the audio asset pipeline.
+### 3. C++ Libraries (Managed by CMake)
+The following libraries are **automatically downloaded and built** by the project. You do **not** need to install them manually:
 
-*Note: The JSON library (`nlohmann_json`) is automatically downloaded via CMake.*
+*   **SFML (2.6.1)**: Graphics, Window, System, Audio.
+*   **EnTT**: Entity Component System.
+*   **nlohmann_json**: JSON support.
 
 ### 2. Preliminary Steps (Audio Pipeline)
 The project uses an asset pipeline for audio to maintain quality and standardization. You **must** run the normalization script before launching the game to generate the necessary assets:
@@ -40,6 +51,28 @@ After a successful build, you can run the executable:
 
 # Windows
 .\build\game.exe
+```
+
+### 5. Cross-Compilation for Windows (from Linux)
+If you are on Linux (WSL2) and want to build a `.exe` for Windows with full **C++23 support** (including `std::print`), use the modernization scripts in `windows_build/`:
+
+#### A. Initial Setup
+This will download and configure the **LLVM-MinGW (Clang)** toolchain in a local folder:
+```bash
+./windows_build/setup.sh
+```
+
+#### B. Build and Package
+Compiles the project (building SFML and EnTT from source for maximum compatibility) and creates a `game-windows-x64.zip`:
+```bash
+./windows_build/build.sh
+```
+*Note: The first build might take a few minutes as it compiles SFML from source.*
+
+#### C. Cleanup (Optional)
+To revert the cross-compilation setup and remove local toolchains/libs:
+```bash
+./windows_build/cleanup.sh
 ```
 
 
