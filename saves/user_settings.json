@@ -4,9 +4,9 @@
         "width": 800
     },
     "volume": {
-        "master": 95,
-        "music": 95,
-        "sfx": 100,
-        "ui": 100
+        "master": 50,
+        "music": 50,
+        "sfx": 50,
+        "ui": 50
     }
 }

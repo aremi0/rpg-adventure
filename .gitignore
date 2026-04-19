@@ -2,7 +2,6 @@
 build/
 bin/
 raw_audio/
-assets/audio/normalized/
 *.o
 *.a
 *.so

@@ -11,6 +11,38 @@ To build this project, you will need:
 *   **SFML**: Simple and Fast Multimedia Library (Graphics, Window, System, Audio modules).
 *   **EnTT**: Open-source, header-only Entity Component System (ECS) library.
 
+## How to Build and Run
+
+### 1. System Requirements
+Ensure that **SFML (>= 2.6)** and **EnTT** are installed on your system. Additionally, **zsh** and **ffmpeg** are required for the audio asset pipeline.
+
+*Note: The JSON library (`nlohmann_json`) is automatically downloaded via CMake.*
+
+### 2. Preliminary Steps (Audio Pipeline)
+The project uses an asset pipeline for audio to maintain quality and standardization. You **must** run the normalization script before launching the game to generate the necessary assets:
+```bash
+./normalize_audio.sh ./raw_audio ./assets/audio
+```
+*Note: The `raw_audio/` directory must contain `sfx/` and `music/` subfolders with `.wav` files.*
+
+### 3. Compilation
+Use the standard CMake workflow to build the project:
+```bash
+cmake -B build
+cmake --build build
+```
+
+### 4. Running the Game
+After a successful build, you can run the executable:
+```bash
+# Linux / macOS
+./build/game
+
+# Windows
+.\build\game.exe
+```
+
+
 ## Documentation
 
 You can find detailed documentation in the `doc/` directory:
