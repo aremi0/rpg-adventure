@@ -8,6 +8,8 @@
 #include <expected>
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
+#include <future>
+#include <vector>
 
 // Definiamo i possibili errori di caricamento
 enum class AssetError {
@@ -42,13 +44,17 @@ class AssetManager {
         
         ~AssetManager() = default;
 
-        // Metodo Template: T può essere sf::Texture, sf::Font, sf::SoundBuffer...
+        // --- Caricamento Singolo (Sincrono) ---
+
+        /**
+         * @brief Carica un singolo asset di tipo T.
+         * T può essere: sf::Texture, sf::Font, sf::SoundBuffer.
+         */
         template<typename T>
         std::expected<void, AssetError> LoadAsset(const std::string& name, const std::string& file_path) {
-            // Se l'asset esiste già, non caricarlo
             if (GetStorage<T>().contains(name)) {
-                Logger::Trace("Asset '{}' già in memoria. Ricaricamento saltato.", name);
-                return std::expected<void, AssetError>{};
+                Logger::Trace("Asset '{}' gia' in memoria. Ricaricamento saltato.", name);
+                return {};
             }
 
             T asset;
@@ -59,26 +65,54 @@ class AssetManager {
 
             GetStorage<T>()[name] = std::move(asset);
             Logger::Trace("Asset '{}' caricato con successo da: {}", name, file_path);
-            return std::expected<void, AssetError>{};
+            return {};
         }
 
-        // sf::Music non può essere copiato e usa openFromFile, quindi lo gestiamo a parte con unique_ptr
-        std::expected<void, AssetError> LoadMusic(const std::string& name, const std::string& file_path) {
+        /**
+         * @brief Specializzazione per sf::Music (gestita come streaming/unique_ptr).
+         */
+        template<typename T> requires std::is_same_v<T, sf::Music>
+        std::expected<void, AssetError> LoadAsset(const std::string& name, const std::string& file_path) {
             if (musics_.contains(name)) {
-                Logger::Trace("Musica '{}' già in memoria. Ricaricamento saltato.", name);
-                return std::expected<void, AssetError>{};
+                Logger::Trace("Musica '{}' gia' in memoria. Ricaricamento saltato.", name);
+                return {};
             }
 
             auto music = std::make_unique<sf::Music>();
-            if (!music->openFromFile(file_path)) { // Nota: openFromFile, non loadFromFile
+            if (!music->openFromFile(file_path)) {
                 Logger::Error("Impossibile aprire la musica '{}' da: {}", name, file_path);
                 return std::unexpected(AssetError::FileNotFound);
             }
 
             musics_[name] = std::move(music);
             Logger::Trace("Musica '{}' caricata con successo da: {}", name, file_path);
-            return std::expected<void, AssetError>{};
+            return {};
         }
+
+        // --- Caricamento Batch (Parallelo) ---
+
+        struct AssetTask {
+            std::string name;
+            std::string path;
+        };
+
+        /**
+         * @brief Carica un set di asset in batch, usando il parallelismo dove possibile.
+         */
+        template<typename T>
+        void LoadAsset(const std::vector<AssetTask>& tasks) {
+            if constexpr (std::is_same_v<T, sf::Texture>) {
+                LoadTexturesParallelInternal(tasks);
+            } else if constexpr (std::is_same_v<T, sf::SoundBuffer>) {
+                LoadSoundsParallelInternal(tasks);
+            } else {
+                // Per Font o altri tipi, caricamento sequenziale
+                for (const auto& task : tasks) {
+                    static_cast<void>(LoadAsset<T>(task.name, task.path));
+                }
+            }
+        }
+
 
         sf::Music& GetMusic(const std::string& name) {
             auto it = musics_.find(name);
@@ -114,33 +148,79 @@ class AssetManager {
             return GetStorage<T>().contains(name);
         }
 
-        // Crea una texture da un'immagine già decodificata in RAM.
-        // Usato nel pattern di caricamento asincrono:
-        //   - sf::Image caricata su thread di lavoro (CPU/I/O, thread-safe)
-        //   - sf::Texture creata sul thread principale (richiede contesto OpenGL)
-        std::expected<void, AssetError> LoadTextureFromImage(
-            const std::string& name, const sf::Image& image) {
-            if (textures_.contains(name)) {
-                Logger::Trace("Texture '{}' già in memoria. Skip.", name);
-                return {};
-            }
-
-            sf::Texture tex;
-            if (!tex.loadFromImage(image)) {
-                Logger::Error("Impossibile creare texture '{}' da immagine", name);
-                return std::unexpected(AssetError::CorruptedFile);
-            }
-
-            textures_[name] = std::move(tex);
-            Logger::Trace("Texture '{}' creata da immagine precaricata", name);
-            return {};
-        }
-
         bool HasMusic(const std::string& name) const {
             return musics_.contains(name);
         }
 
     private:
+        // --- Metodi Helper Interni ---
+
+        void LoadTexturesParallelInternal(const std::vector<AssetTask>& tasks) {
+            std::vector<AssetTask> pending;
+            for (const auto& t : tasks) {
+                if (!textures_.contains(t.name)) {
+                    pending.push_back(t);
+                }
+            }
+
+            if (pending.empty()) {
+                return;
+            }
+
+            std::vector<std::future<std::pair<std::string, sf::Image>>> futures;
+            for (const auto& t : pending) {
+                futures.push_back(std::async(std::launch::async, [t]() {
+                    sf::Image img; 
+                    img.loadFromFile(t.path);
+                    return std::make_pair(t.name, std::move(img));
+                }));
+            }
+
+            for (auto& f : futures) {
+                auto [name, img] = f.get();
+                if (img.getSize().x > 0) {
+                    static_cast<void>(LoadTextureFromImage(name, img));
+                }
+            }
+        }
+
+        void LoadSoundsParallelInternal(const std::vector<AssetTask>& tasks) {
+            std::vector<AssetTask> pending;
+            for (const auto& t : tasks) {
+                if (!sound_buffers_.contains(t.name)) {
+                    pending.push_back(t);
+                }
+            }
+
+            if (pending.empty()) {
+                return;
+            }
+
+            std::vector<std::future<std::pair<std::string, sf::SoundBuffer>>> futures;
+            for (const auto& t : pending) {
+                futures.push_back(std::async(std::launch::async, [t]() {
+                    sf::SoundBuffer buf; 
+                    buf.loadFromFile(t.path);
+                    return std::make_pair(t.name, std::move(buf));
+                }));
+            }
+
+            for (auto& f : futures) {
+                auto [name, buf] = f.get();
+                if (buf.getSampleCount() > 0) {
+                    sound_buffers_[name] = std::move(buf);
+                }
+            }
+        }
+
+        std::expected<void, AssetError> LoadTextureFromImage(const std::string& name, const sf::Image& image) {
+            if (textures_.contains(name)) return {};
+            sf::Texture tex;
+            if (!tex.loadFromImage(image)) return std::unexpected(AssetError::CorruptedFile);
+            textures_[name] = std::move(tex);
+            return {};
+        }
+
         // Helper per ottenere la mappa corretta
         template<typename T>
         auto& GetStorage() {

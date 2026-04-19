@@ -1,9 +1,11 @@
 ## 5. C++ Avanzato: Template e Metaprogrammazione
 
 *   [5.1 L-values vs R-values](#51-l-values-vs-r-values)
-*   [5.2 Template Variadici](#52-template-variadici)
-*   [5.3 Universal References e Perfect Forwarding](#53-universal-references-e-perfect-forwarding)
-*   [5.4 Compile-Time If (`if constexpr`)](#54-compile-time-if-if-constexpr)
+*   [5.2 Il Mondo dei Template](#52-il-mondo-dei-template)
+    *   [5.2.1 Template Variadici](#521-template-variadici)
+    *   [5.2.2 Universal References e Perfect Forwarding](#522-universal-references-e-perfect-forwarding)
+    *   [5.2.3 Vincoli e Concetti (`requires`)](#523-vincoli-e-concetti-requires)
+*   [5.3 Compile-Time If (`if constexpr`)](#53-compile-time-if-if-constexpr)
 
 Analizziamo questa funzione magica da `Logger.hpp`:
 
@@ -22,7 +24,11 @@ Per capire il resto, serve questa distinzione fondamentale:
     *   Es: `5`, `x + 2`, `getLocation()`.
 *   **Perché importa?**: Gli R-value possono essere **spostati** (`move`) invece che copiati, rubando le loro risorse (molto efficiente).
 
-### 5.2 Template Variadici
+### 5.2 Il Mondo dei Template
+
+I template permettono di scrivere codice generico, ma con il tempo sono diventati sempre più potenti e complessi.
+
+#### 5.2.1 Template Variadici
 
 ```cpp
 template<typename... Args>
@@ -33,7 +39,7 @@ template<typename... Args>
 *   **`args...`** (nel corpo): È l'operatore di **espansione**. Spacchetta gli argomenti separandoli da virgole.
     Se chiami `info(fmt, a, b, c)`, `log(..., args...)` diventa `log(..., a, b, c)`.
 
-### 5.3 Universal References e Perfect Forwarding
+#### 5.2.2 Universal References e Perfect Forwarding
 
 ```cpp
 Args&&... args
@@ -53,7 +59,26 @@ std::forward<Args>(args)...
 
 Questo meccanismo (**Perfect Forwarding**) permette alla funzione `info` di essere completamente trasparente: passa gli argomenti a `log` *esattamente* come li ha ricevuti, senza copie extra non necessarie.
 
-### 5.4 Compile-Time If (`if constexpr`)
+#### 5.2.3 Vincoli e Concetti (`requires`)
+
+Introdotto in **C++20**, la parola chiave `requires` permette di imporre dei vincoli sui tipi accettati da un template in modo estremamente leggibile.
+
+*   **Il Problema**: Prima del C++20, se passavi un tipo sbagliato a un template, ricevevi errori chilometrici e incomprensibili dal profondo del corpo della funzione.
+*   **La Soluzione**: Con `requires` specifichiamo i requisiti **nella firma** della funzione. Se il tipo non li soddisfa, il compilatore rifiuta la chiamata immediatamente con un messaggio chiaro.
+
+**Esempio (AssetManager):**
+Usiamo `requires` per creare un sovraccarico dedicato alla musica, che richiede una logica di caricamento diversa dalle texture (streaming vs upload GPU).
+
+```cpp
+template<typename T> 
+requires std::is_same_v<T, sf::Music>
+std::expected<void, AssetError> LoadAsset(const std::string& name, const std::string& path) {
+    // Questo codice verrà compilato SOLO se T è sf::Music
+    // ... logica specifica per lo streaming audio ...
+}
+```
+
+### 5.3 Compile-Time If (`if constexpr`)
 
 Introdotto in C++17, `if constexpr` è un costrutto condizionale valutato **durante la compilazione**, non mentre il gioco è in esecuzione.
 

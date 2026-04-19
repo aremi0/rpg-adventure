@@ -6,7 +6,6 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <format>
-#include <future>
 
 MainMenuState::MainMenuState(GameDataRef data) 
     : State("MainMenuState"),
@@ -30,43 +29,25 @@ void MainMenuState::Init() {
     test_sprite_.setPosition(100, 100);
     test_sprite_.setScale(2.0f, 2.0f);
 
-    // ----------------- Loading MainMenu background frames (ASYNC)
-    // Fase 1: Lancio decodifica PNG in parallelo (CPU/I/O — thread-safe)
-    struct FrameTask {
-        std::string name;
-        std::string path;
-    };
-
-    std::vector<FrameTask> frame_tasks;
-    frame_tasks.reserve(Config::MainMenu::kBackgroundFrames);
+    // ----------------- Loading MainMenu background frames (ASYNC PARALLEL)
+    std::vector<AssetManager::AssetTask> tasks;
+    tasks.reserve(Config::MainMenu::kBackgroundFrames);
+    
     for (int i = 0; i < Config::MainMenu::kBackgroundFrames; ++i) {
         std::string name = std::format("{}{}", Config::MainMenu::kBackgroundFrameName, i);
-        frame_tasks.push_back({
+        tasks.push_back({
             .name = name,
             .path = std::format("{}{}.png", Config::MainMenu::kBackgroundFramePath, name)
         });
     }
 
-    std::vector<std::future<sf::Image>> image_futures;
-    image_futures.reserve(frame_tasks.size());
-    for (const auto& task : frame_tasks) {
-        image_futures.push_back(
-            std::async(std::launch::async, [path = task.path]() {
-                sf::Image img;
-                img.loadFromFile(path);
-                return img;
-            })
-        );
-    }
+    // L'AssetManager gestisce ora il caricamento parallelo in batch
+    data_->assets.LoadAsset<sf::Texture>(tasks);
 
-    // Fase 2: Upload textures sulla GPU dal thread principale (richiede OpenGL)
-    for (size_t i = 0; i < frame_tasks.size(); ++i) {
-        sf::Image img = image_futures[i].get(); // Blocca finché l'immagine è pronta
-        if (img.getSize().x > 0) {
-            auto result = data_->assets.LoadTextureFromImage(frame_tasks[i].name, img);
-            if (result) {
-                background_->AddFrame(frame_tasks[i].name);
-            }
+    // Aggiungo al background solo i frame caricati correttamente
+    for (const auto& task : tasks) {
+        if (data_->assets.HasAsset<sf::Texture>(task.name)) {
+            background_->AddFrame(task.name);
         }
     }
 
@@ -74,7 +55,7 @@ void MainMenuState::Init() {
     background_->Resize(sf::Vector2u(Config::Game::kLogicalWidth, Config::Game::kLogicalHeight));
     
     // ----------------- Loading Game musics
-    auto music_res = data_->assets.LoadMusic(
+    auto music_res = data_->assets.LoadAsset<sf::Music>(
         std::string(Config::Game::kMusicName), 
         std::string(Config::Game::kMusicPath)
     );

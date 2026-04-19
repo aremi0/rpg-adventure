@@ -47,29 +47,23 @@ data_->config.GetSettings().audio.GetMusicVolume()
 data_->config.GetSettings().resolution
 ```
 
-### 6. Bonus: Caricamento Asincrono dei Background Frames
+### 6. Bonus: Caricamento Parallelo via AssetManager
 
-Il caricamento sequenziale dei 48 frame PNG del menu è stato parallelizzato sfruttando il fatto che `sf::Image::loadFromFile()` è thread-safe (nessun OpenGL coinvolto), mentre solo l'upload della texture sulla GPU richiede il thread principale.
+Per non bloccare il caricamento iniziale (specialmente per i 48 frame PNG del menu), l' `AssetManager` implementa internamente il parallelismo. La decodifica delle immagini/audio avviene su thread separati, mentre l'upload sulla GPU rimane serializzato sul thread principale per compatibilità OpenGL.
 
-**`src/states/MainMenuState.cpp`**
+**Uso Unificato nell' `Init()` degli Stati:**
+Il design pattern è ora completamente incapsulato. Lo stato non gestisce più i thread, ma chiede semplicemente il caricamento di un "batch" di asset:
+
 ```cpp
-// Fase 1: Decodifica PNG in parallelo su tutti i core
-std::vector<std::future<sf::Image>> image_futures;
-for (const auto& task : frame_tasks) {
-    image_futures.push_back(
-        std::async(std::launch::async, [path = task.path]() {
-            sf::Image img;
-            img.loadFromFile(path);
-            return img;
-        })
-    );
-}
+// Prepara la lista dei task
+std::vector<AssetManager::AssetTask> tasks;
+// ... riempimento tasks ...
 
-// Fase 2: Upload GPU seriale (veloce, solo trasferimento RAM → VRAM)
-for (size_t i = 0; i < frame_tasks.size(); ++i) {
-    sf::Image img = image_futures[i].get();
-    data_->assets.LoadTextureFromImage(frame_tasks[i].name, img);
-}
+// Caricamento Parallelo (gestito internamente da AssetManager)
+data_->assets.LoadAsset<sf::Texture>(tasks);
 ```
 
-**`include/resources/AssetManager.hpp`** — Aggiunto il metodo `LoadTextureFromImage()` che crea una `sf::Texture` da un'immagine già decodificata in RAM, completando il pattern *decode-parallelizzato + upload-seriale*.
+**`include/resources/AssetManager.hpp`**
+- **Sincrono vs Batch**: `LoadAsset` è sovraccaricato per supportare sia il caricamento singolo che quello massivo.
+- **Supporto Music**: Unificato tramite `LoadAsset<sf::Music>`, che gestisce automaticamente lo streaming.
+- **Cache Check**: Ogni caricamento batch controlla preventivamente se l'asset è già in memoria, evitando thread e I/O inutili.
