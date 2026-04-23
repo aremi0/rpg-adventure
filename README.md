@@ -112,7 +112,7 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **4.1: Registry Setup**
     * ✅ **4.2: Base Component**
     * ✅ **4.3: Render System**
-    * ✅ **4.4: Game State & First Entoty**
+    * ✅ **4.4: Game State & First Entity**
 * ✅ **Fase 5: Input, Movimento e Tools**
     * ✅ **5.1: Nuovi Componenti** (`VelocityComponent` e `PlayerComponent`).
     * ✅ **5.2: Player Input System** (Legge la tastiera e imposta la direzione).
@@ -121,10 +121,10 @@ You can find detailed documentation in the `doc/` directory:
         * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei log-level).
         * ✅ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay, verrà riespansa in futuro).
 * 🔄 **Fase 6: Data-Driven Architecture & Persistence**
-    * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json o yaml-cpp).
+    * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json).
     * 🔄 **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
 * ⬜ **Fase 7: Mappa, Collisioni e Telecamera**
-    * ⬜ **7.1: Setup Asset Tilemap** (Export da Tiled Editor in JSON/YAML, netta separazione: Mappa per ambienti, Entità per personaggi).
+    * ⬜ **7.1: Setup Asset Tilemap** (Export da Tiled Editor in JSON, netta separazione: Mappa per ambienti, Entità per personaggi).
     * ⬜ **7.2: Parsing e Rendering della Tilemap** (Caricamento logico dal file e disegno).
     * ⬜ **7.3: Box Collider Component & System** (Collisioni mappa/entità).
     * ⬜ **7.4: Camera System** (La telecamera segue l'eroe).
