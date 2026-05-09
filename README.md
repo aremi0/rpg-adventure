@@ -123,12 +123,12 @@ You can find detailed documentation in the `doc/` directory:
 * 🔄 **Fase 6: Data-Driven Architecture & Persistence**
     * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json).
     * 🔄 **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
-* ⬜ **Fase 7: Mappa, Collisioni e Telecamera**
-    * ⬜ **7.1: Setup Asset Tilemap** (Export da Tiled Editor in JSON, netta separazione: Mappa per ambienti, Entità per personaggi).
-    * ⬜ **7.2: Parsing e Rendering della Tilemap** (Caricamento logico dal file e disegno).
-    * ⬜ **7.3: Box Collider Component & System** (Collisioni mappa/entità).
-    * ⬜ **7.4: Camera System** (La telecamera segue l'eroe).
-    * ⬜ **7.5: Expanded Debug Render System** (Overlay per hitbox e griglia tilemap).
+* ⬜ **Fase 7: Mappa, Collisioni e Telecamera (LDtk Integration)**
+    * ⬜ **7.1: Architettura MapManager & LDtk Loader** (Creazione di un loader dedicato che usa `std::expected` e `nlohmann/json` per caricare i dati spaziali).
+    * ⬜ **7.2: Rendering Ottimizzato (Vertex Arrays)** (Implementazione del rendering dei layer di tile usando `sf::VertexArray` e `std::mdspan` per l'accesso ai dati).
+    * ⬜ **7.3: Integrazione 2.5D & ECS** (Conversione delle entità LDtk in entità EnTT con `TransformComponent` ed `Elevation`).
+    * ⬜ **7.4: Box Collider Component & System** (Collisioni mappa/entità basate sui dati estratti da LDtk).
+    * ⬜ **7.5: Camera System & Advanced Debug** (La telecamera segue l'eroe; overlay per hitbox e griglia tilemap).
 * ⬜ **Fase 8: Animazioni, Pathfinding & Intelligenza**
     * ⬜ **8.1: Entity Animation System** (`AnimatorComponent`, per ciclare agilmente i vari frames dei personaggi).
     * ⬜ **8.2: Mouse Navigation System (A* Pathfinding)** *(Opzionale)* (Movimento Punta e Clicca).
