@@ -257,6 +257,7 @@ void PortalSystem::activate(const PortalComponent& portal, Entity player) {
 
 ## Riferimenti
 
-- [ldtk-layer-structure.md](../ldtk-layer-structure.md) — indice
+- [ldtk-index.md](ldtk-index.md) — indice LDtk
+- [agent_development_guide.md](../agent_development_guide.md) — guida agenti per fase
 - [ldtk-entity-schema.md](ldtk-entity-schema.md) — custom fields
 - [ldtk-data-architecture.md](ldtk-data-architecture.md) — LDtk vs JSON vs ECS

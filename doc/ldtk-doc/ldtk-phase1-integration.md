@@ -3,6 +3,8 @@
 > Obiettivo: integrare la mappa nell'engine durante la **Fase 7** della roadmap.  
 > Setup volutamente semplice, progettato per espandersi senza breaking changes.
 
+**Guida agenti:** [Agent Development Guide](../agent_development_guide.md)
+
 ---
 
 ## Scope Fase 1
@@ -12,9 +14,9 @@
 | Rendering tile layer | Ponti, cascate, canopy separati |
 | IntGrid Collisions + Elevation | TerrainFX, status da terreno |
 | PlayerStart entity | Nemici, NPC, oggetti interattivi |
-| Camera follow | Pathfinding, animazioni tile |
-| Box collision base | Danno, loot, porte |
-| Y-sort base (foot_y) | Occlusione avanzata per alberi |
+| Camera follow | Pathfinding, animazioni tile, party |
+| Box collision base | Danno, loot, porte, NPC reclutabili |
+| Y-sort base (foot_y + height) | Occlusione avanzata per alberi |
 
 ---
 
@@ -55,20 +57,34 @@ enum class CollisionType : uint8_t {
 };
 ```
 
-### Logica scale (Fase 1)
+### Logica scale / rampe (Fase 1)
+
+Elevazione **dual-layer**: IntGrid intero per cella; runtime float per transizione fluida.
 
 ```cpp
-void ElevationTransitionSystem::update(Entity player, GridPos cell) {
-    if (collision_grid[cell] != CollisionType::Stairs) return;
+struct ElevationComponent {
+    int floor_level = 0;   // piano gameplay (intero)
+    float height = 0.f;    // altezza continua per render e depth sort
+};
 
-    const int target = elevation_grid[cell];
-    if (target != player.get<ElevationComponent>().level) {
-        player.get<ElevationComponent>().level = target;
+void RampTransitionSystem::Update(entt::entity player, GridPos cell) {
+    if (collision_grid[cell] != CollisionType::Stairs) {
+        // Cella piatta: height = floor_level * kHeightPerLevel
+        return;
     }
+    const int to_level = elevation_grid[cell];
+    const int from_level = /* dedotto da celle adiacenti walkable */;
+    const float ramp_t = /* 0..1 in base a posizione sulla rampa */;
+    auto& elev = registry.get<ElevationComponent>(player);
+    elev.height = std::lerp(from_level * kHeightPerLevel,
+                            to_level * kHeightPerLevel, ramp_t);
+    if (ramp_t >= 0.5f) elev.floor_level = to_level;  // snap gameplay
 }
 ```
 
-Non servono `ramp_up` / `ramp_down`: la direzione la deduce l'`Elevation` grid.
+Non servono `ramp_up` / `ramp_down`: usa `Stairs` + IntGrid `Elevation` (piano destinazione).
+
+**Input:** solo WASD (`PlayerInputSystem`); punta-e-clicca = Fase 8.2.
 
 ---
 
@@ -163,19 +179,28 @@ Usa `std::expected` come da roadmap 7.1.
 
 ## Componenti ECS — Fase 1
 
+Allineare con [`Components.hpp`](../../include/components/Components.hpp) esistente; estendere senza breaking change inutile.
+
 ```cpp
 struct TransformComponent {
     sf::Vector2f position;
-    sf::Vector2f foot_offset{0.f, 0.f};  // punto sorting
+    sf::Vector2f foot_offset{0.f, 0.f};  // punto sorting (piedi)
+    sf::Vector2f scale{1.f, 1.f};
+    float rotation = 0.f;
+    // NOTA: migrare TransformComponent.elevation (float legacy) → ElevationComponent.height
 };
 
 struct ElevationComponent {
-    int level = 0;
+    int floor_level = 0;
+    float height = 0.f;
 };
 
-struct VelocityComponent { sf::Vector2f velocity; };
+struct VelocityComponent {
+    sf::Vector2f velocity;
+    float speed = 200.f;
+};
 
-struct PlayerComponent {};
+struct PlayerComponent {};  // tag — un solo player in Fase 7
 
 struct BoxColliderComponent {
     sf::Vector2f size;
@@ -184,9 +209,9 @@ struct BoxColliderComponent {
 };
 
 struct SpriteComponent {
-    std::shared_ptr<sf::Texture> texture;
-    sf::IntRect texture_rect;
+    sf::Sprite sprite;       // embedded, come in codebase attuale
     int sort_offset = 0;
+    // z_index statico → sostituito da DepthSortSystem in 7.3
 };
 ```
 
@@ -197,11 +222,12 @@ struct SpriteComponent {
 | Sistema | Fase roadmap | Input |
 |---------|--------------|-------|
 | `MapRenderSystem` | 7.2 | tile layers → `sf::VertexArray` |
-| `DepthSortSystem` | 7.3 | `foot_y + elevation` |
-| `MovementSystem` | 5.3 | velocity, collisions grid |
-| `ElevationTransitionSystem` | 7.3 | stairs + elevation grid |
-| `CollisionSystem` | 7.4 | box vs grid |
+| `DepthSortSystem` | 7.3 | `height` float + `foot_y` + `sort_offset` |
+| `MovementSystem` | 5.3 | velocity, posizione float |
+| `RampTransitionSystem` | 7.3 | stairs + elevation grid, interpolazione `height` |
+| `CollisionSystem` | 7.4 | box vs grid (sub-tile) |
 | `CameraSystem` | 7.5 | player position |
+| `PlayerInputSystem` | 5.2 | WASD → `VelocityComponent` |
 
 ### Depth sort minimale
 
@@ -212,8 +238,8 @@ struct DrawItem {
 };
 
 std::vector<DrawItem> items;
-for (auto [e, t, elev, spr] : view<Transform, Elevation, Sprite>()) {
-    int key = elev.level * 10000
+for (auto [e, t, elev, spr] : view<TransformComponent, ElevationComponent, SpriteComponent>()) {
+    int key = static_cast<int>(elev.height * kSortScale)
             + static_cast<int>(t.position.y + t.foot_offset.y)
             + spr.sort_offset;
     items.push_back({e, key});
@@ -244,7 +270,7 @@ Quando passi a Fase 2, verifica:
 - [ ] `MapManager` espone API generiche (`get_int_grid("TerrainFX")`)
 - [ ] Le entity hanno parsing generico dei `field_instances` (json)
 - [ ] `DepthSortSystem` supporta già `sort_offset` per canopy
-- [ ] `ElevationTransitionSystem` non assume solo 2 livelli
+- [ ] `RampTransitionSystem` supporta interpolazione float e più di 2 livelli
 - [ ] `BoxColliderComponent` supporta `is_trigger`
 
 Se tutti ✅, la transizione è aggiungere layer e entity senza refactoring.

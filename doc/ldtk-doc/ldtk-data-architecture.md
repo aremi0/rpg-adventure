@@ -112,10 +112,11 @@ data/
 
 | Componente | Contenuto |
 |------------|-----------|
-| `TransformComponent` | posizione, rotazione, foot_offset |
-| `ElevationComponent` | livello corrente |
+| `TransformComponent` | posizione float, foot_offset, scale, rotation |
+| `ElevationComponent` | `floor_level` (int), `height` (float) |
 | `VelocityComponent` | velocità |
-| `SpriteComponent` | texture, rect, sort_offset |
+| `SpriteComponent` | `sf::Sprite`, sort_offset |
+| `AnimatorComponent` | frame corrente, timer, anim_id — **Fase 8.1** |
 | `BoxColliderComponent` | hitbox |
 | `StatsComponent` | STR, DEX, CON, INT, WIS, CHA, HP, MP |
 | `CombatComponent` | attacco, difesa, resistenze |
@@ -131,6 +132,58 @@ data/
 | `PlayerComponent` | tag player |
 | `EnemyTag` | tag nemico |
 | `NPCTag` | tag NPC |
+| `PartyMemberComponent` | slot party, is_leader — **Fase 8.3** |
+| `RecruitableComponent` | flag/dialogo reclutamento — **Fase 8.3** |
+
+---
+
+## Sprite animation — personaggi (Fase 8.1)
+
+LDtk non anima: salva facing/spawn statico; l'engine cicla i frame.
+
+| Dato | Dove |
+|------|------|
+| Facing iniziale | LDtk `PlayerStart.facing` |
+| Definizione anim (frame, fps, path PNG) | `data/sprites/{id}.json` |
+| Frame corrente, timer | ECS `AnimatorComponent` |
+
+**Tileset Franuka:** PNG separati per azione (idle, run, attack, …). Referenziati da JSON, caricati via `AssetManager`. Non unificare in atlas obbligatorio in Fase 7.
+
+```json
+// data/sprites/hero.json (esempio)
+{
+  "id": "hero",
+  "animations": {
+    "idle_south": { "frames": ["hero_idle_s_0.png", "..."], "fps": 6 },
+    "walk_south": { "frames": ["hero_walk_s_0.png", "..."], "fps": 10 }
+  }
+}
+```
+
+**Fase 7:** sprite statico (un frame) sufficiente.
+
+---
+
+## Party WoES — tre personaggi (Fase 8.3)
+
+| Aspetto | Decisione |
+|---------|-----------|
+| Dimensione party | Max **3** (eroe + 2 reclutabili) |
+| Spawn compagni | **Runtime** via reclutamento; non da LDtk al load |
+| LDtk | Un `PlayerStart`; NPC con `recruitable` in phase2 |
+| Movimento iniziale | Unità (leader + follower); input WASD sul leader |
+| Dismiss | NPC torna a comportamento mondo; re-reclutabile via dialoghi/quest |
+| Persistenza | Save JSON con stato party e delta entity (`ldtk_uid`) |
+
+```cpp
+struct PartyState {
+    static constexpr int kMaxMembers = 3;
+    std::array<entt::entity, kMaxMembers> members{};
+    int active_member_index = 0;
+};
+```
+
+**Non implementare in Fase 7.**
 
 ---
 

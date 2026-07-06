@@ -83,7 +83,8 @@ You can find detailed documentation in the `doc/` directory:
 *   [C++ Review](doc/cpp_review.md): A quick review of C++23 features.
 *   [TODO](doc/todo_list.md): List of TODOs and future features.
 *   [Naming Conventions](doc/naming_conventions.md): Naming Conventions used in this project.
-*   [LDtk layer structure](doc/ldtk-doc/ldtk-index.md)
+*   [**Agent Development Guide**](doc/agent_development_guide.md): Contesto unificato per agenti AI e sviluppo per fasi (roadmap, scope, criteri).
+*   [LDtk Map Design](doc/ldtk-doc/ldtk-index.md): Layer, entity, integrazione LDtk.
 
 ---
 
@@ -121,19 +122,33 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **5.4: Advanced Debugging Tools**
         * ✅ **5.4.1: Dynamic Logger** (Switch in tempo reale dei log-level).
         * ✅ **5.4.2: Debug Render System** (Modalità visiva geometrica e testo overlay, verrà riespansa in futuro).
-* 🔄 **Fase 6: Data-Driven Architecture & Persistence**
-    * 🔄 **6.1: Integrazione Parser** (Setup CMake per nlohmann/json).
+* 🔄 **Fase 6: Data-Driven Architecture & Persistence** *(semi-completa, da testare end-to-end)*
+    * ✅ **6.1: Integrazione Parser** (Setup CMake per nlohmann/json).
     * 🔄 **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
 * ⬜ **Fase 7: Mappa, Collisioni e Telecamera (LDtk Integration)**
-    * ⬜ **7.1: Architettura MapManager & LDtk Loader** (Creazione di un loader dedicato che usa `std::expected` e `nlohmann/json` per caricare i dati spaziali).
-    * ⬜ **7.2: Rendering Ottimizzato (Vertex Arrays)** (Implementazione del rendering dei layer di tile usando `sf::VertexArray` e `std::mdspan` per l'accesso ai dati).
-    * ⬜ **7.3: Integrazione 2.5D & ECS** (Conversione delle entità LDtk in entità EnTT con `TransformComponent` ed `Elevation`).
-    * ⬜ **7.4: Box Collider Component & System** (Collisioni mappa/entità basate sui dati estratti da LDtk).
-    * ⬜ **7.5: Camera System & Advanced Debug** (La telecamera segue l'eroe; overlay per hitbox e griglia tilemap).
-* ⬜ **Fase 8: Animazioni, Pathfinding & Intelligenza**
-    * ⬜ **8.1: Entity Animation System** (`AnimatorComponent`, per ciclare agilmente i vari frames dei personaggi).
-    * ⬜ **8.2: Mouse Navigation System (A* Pathfinding)** *(Opzionale)* (Movimento Punta e Clicca).
-    * ⬜ **8.3: RPG Core Logic** (NPC, Nemici, HP).
+    * ⬜ **7.1: MapManager & LDtk Loader** (`std::expected`, parsing JSON `.ldtk`, API grid).
+    * ⬜ **7.2: VertexArray Rendering** (Tile layer con `sf::VertexArray`; `std::mdspan` opzionale).
+    * ⬜ **7.3: 2.5D & ECS** (`ElevationComponent` dual-layer: `floor_level` int + `height` float; `RampTransitionSystem`; `DepthSortSystem`).
+    * ⬜ **7.4: Collisioni** (`BoxColliderComponent`, grid `Collisions`, movimento float sub-tile).
+    * ⬜ **7.5: Camera & Debug** (Camera segue player; overlay griglia/hitbox/elevazione).
+    * *Input Fase 7: **WASD** only. Un solo personaggio controllato. Vedi [Agent Guide](doc/agent_development_guide.md).*
+* ⬜ **Fase 8: Animazioni, Party & RPG**
+    * ⬜ **8.1: Entity Animation System** (`AnimatorComponent`; JSON sprite sheets Franuka).
+    * ⬜ **8.3: RPG Core & Party WoES** (Party max 3, reclutamento/dismiss NPC, dialoghi/quest; ispirato *Warriors of the Eternal Sun*).
+    * ⬜ **8.2: Mouse Navigation (A* Pathfinding)** *(Opzionale, dopo 7.x)* (Punta e clicca; non in Fase 7).
+* ⬜ **LDtk Phase 2** *(post Fase 7)*: layer completi, entity interattive, `TerrainFX`, tile animati — vedi [ldtk-phase2](doc/ldtk-doc/ldtk-phase2-complete.md).
+
+---
+
+Come **Agent Development Guide** con un agente
+Esempio per il loader (7.1):
+
+Stai lavorando su RPG Adventure (C++23, SFML, EnTT).
+Leggi doc/agent_development_guide.md — sezioni "Regole d'oro" e "B1–B2".
+Rispetta doc/naming_conventions.md.
+Scope: implementare LdtkLoader + MapManager solo.
+Non implementare rendering, collisioni o party.
+Per ogni agente basta indicare la sezione della guida (es. B6–B7, Fase 8.3) e il task resta delimitato.
 
 ---
 
