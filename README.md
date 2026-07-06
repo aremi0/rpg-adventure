@@ -83,7 +83,7 @@ You can find detailed documentation in the `doc/` directory:
 *   [C++ Review](doc/cpp_review.md): A quick review of C++23 features.
 *   [TODO](doc/todo_list.md): List of TODOs and future features.
 *   [Naming Conventions](doc/naming_conventions.md): Naming Conventions used in this project.
-*   [LDtk layer structure](doc/ldtk-layer-structure.md)
+*   [LDtk layer structure](doc/ldtk-doc/ldtk-index.md)
 
 ---
 
