@@ -38,3 +38,33 @@ struct VelocityComponent {
 // "Ehi, è QUESTA l'entità che devi muovere quando l'utente preme i tasti!"
 // -----------------------------------------------------------------------------
 struct PlayerComponent {};
+
+enum class Facing {
+  kNorth,
+  kEast,
+  kSouth,
+  kWest,
+};
+
+struct FacingComponent {
+  Facing facing = Facing::kSouth;
+};
+
+// -----------------------------------------------------------------------------
+// ElevationComponent
+// Dual-layer: floor_level (gameplay int) + height (visual float, rampe fluide).
+// -----------------------------------------------------------------------------
+struct ElevationComponent {
+    int floor_level = 0;
+    float height = 0.f;
+};
+
+// -----------------------------------------------------------------------------
+// BoxColliderComponent
+// Hitbox AABB per collisioni con la griglia mappa (piedi dell'entity).
+// -----------------------------------------------------------------------------
+struct BoxColliderComponent {
+    sf::Vector2f size{16.f, 8.f};
+    sf::Vector2f offset{0.f, 24.f};
+    bool is_trigger = false;
+};

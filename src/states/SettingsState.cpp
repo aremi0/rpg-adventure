@@ -1,6 +1,7 @@
 #include "states/SettingsState.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
+#include "core/DisplayUtils.hpp"
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <format>
@@ -294,9 +295,7 @@ void SettingsState::ApplyResolution() {
     // Ricrea la finestra con la nuova risoluzione
     data_->window.create(new_mode, std::string(Config::Game::kWindowName));
 
-    // Reimosta la View logica fissa (i calcoli UI restano invariati)
-    sf::View view(sf::FloatRect(0, 0, Config::Game::kLogicalWidth, Config::Game::kLogicalHeight));
-    data_->window.setView(view);
+    ApplyDisplayView(data_->window);
 
     Logger::Info("Risoluzione applicata: {}x{}", new_mode.width, new_mode.height);
     UpdateResLabel();
@@ -340,8 +339,13 @@ int SettingsState::FindResolutionIndex(sf::Vector2u resolution) const {
             return i;
         }
     }
-    // Se non trovata, ritorna l'indice del default (1024x768 = indice 1)
-    Logger::Warn("Risoluzione {}x{} non trovata nella lista supportata, uso indice 1",
+    Logger::Warn("Risoluzione {}x{} non trovata nella lista supportata, uso default",
                  resolution.x, resolution.y);
-    return 1;
+    for (int i = 0; i < static_cast<int>(supported_resolutions_.size()); ++i) {
+        if (supported_resolutions_[i].width == Config::Settings::kDefaultWindowWidth &&
+            supported_resolutions_[i].height == Config::Settings::kDefaultWindowHeight) {
+            return i;
+        }
+    }
+    return 0;
 }

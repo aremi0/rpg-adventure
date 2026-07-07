@@ -24,6 +24,7 @@
 | 7.1 Loader + MapManager | [B1–B2](#b1b2--ldtkloader--mapmanager-71) | [`ldtk-phase1-integration.md`](ldtk-doc/ldtk-phase1-integration.md) |
 | 7.2 Tile rendering | [B3–B4](#b3b4--tileset--maprendersystem-72) | phase1 |
 | 7.x GameState integration | [B5, B8](#b5--integrazione-gamestate) | [`4_0_ecs.md`](core/4_0_ecs.md) |
+| Revisione post-B8 (qualità) | [C — Revisione](#c--revisione-integrazione-post-b8) | questo doc |
 | 7.3–7.4 Elevation + collisioni | [B6–B7](#b6b7--elevazione--collisioni-7374) | phase1, questo doc § Elevazione |
 | 7.3, 7.5 Depth sort + camera + debug | [B9–B11](#b9b11--depth-sort-camera-debug-7375) | [`5_4_2_visual_debug_rendering.md`](core/5_4_2_visual_debug_rendering.md) |
 | LDtk phase2 (post-7) | [Fase C](#fase-c--ldtk-phase2-post-fase-7) | [`ldtk-phase2-complete.md`](ldtk-doc/ldtk-phase2-complete.md) |
@@ -165,8 +166,9 @@ sort_key = static_cast<int>(elev.height * kSortScale)
 
 ### View e camera
 
-- Menu/Settings: view logica 1024×768.
+- Menu/Settings: view logica 1024×768 (UI, nessun zoom mondo).
 - `GameState`: view **mondo** con `CameraSystem` che segue il player (7.5).
+- **Zoom per mondo:** il fattore di zoom non è globale — dipende dal livello LDtk caricato (es. overworld `1.0×`, dungeon `1.5×`–`2.0×`). Vedi [B9–B11 § Camera](#b911--depth-sort-camera-debug-7375).
 
 ---
 
@@ -211,19 +213,19 @@ PlayerComponent     // tag vuoto
 
 ### Task
 
-- [ ] Correggere link in `doc/ldtk-doc/` (path relativi corretti).
-- [ ] ~~`doc/ldtk-layer-structure.md`~~ — **eliminato**; fonte unica: `doc/ldtk-doc/`.
-- [ ] Creare progetto LDtk **phase1**:
+- [x] Correggere link in `doc/ldtk-doc/` (path relativi corretti).
+- [x] ~~`doc/ldtk-layer-structure.md`~~ — **eliminato**; fonte unica: `doc/ldtk-doc/`.
+- [x] Creare progetto LDtk **phase1**:
   - Layer: `Terrain`, `Decor`, `Buildings`
-  - IntGrid: `Collisions`, `Elevation`
+  - IntGrid: `Collision` (alias `Collisions`), `Elevation`
   - Entity: `PlayerStart`
   - Tile 32×32 Franuka
-- [ ] Mappa test ~40×30: erba, acqua, cliff, scale (0→1), edificio, spawn.
-- [ ] Export in `assets/maps/world/`.
+- [x] Mappa test ~26×22: erba, acqua, cliff, scale (0→1), edificio, spawn.
+- [x] Export in `assets/maps/world/`.
 
 ### Criteri di accettazione
 
-- File `.ldtk` + `.ldtkl` + tileset PNG in repo.
+- File `.ldtk` + tileset PNG in repo (`assets/maps/world/rpg-adventure-phase1.ldtk`, livello embedded).
 - Layer e IntGrid rispettano [`ldtk-phase1-integration.md`](ldtk-doc/ldtk-phase1-integration.md).
 
 ### Non fare
@@ -242,7 +244,7 @@ PlayerComponent     // tag vuoto
 ### Ordine implementazione consigliato
 
 ```
-B1–B2 → B3–B4 → B5 → B7 → B6 → B8 → B9 → B10 → B11
+B1–B2 → B3–B4 → B5 → B7 → B6 → B8 → C → B9 → B10 → B11
 ```
 
 (B6 e B7 possono essere invertiti; collisioni prima dell'elevazione è spesso più testabile.)
@@ -252,6 +254,10 @@ B1–B2 → B3–B4 → B5 → B7 → B6 → B8 → B9 → B10 → B11
 ### B1–B2 — LdtkLoader + MapManager (7.1)
 
 **Scope:** parsing JSON `.ldtk`, strutture dati, API grid.
+
+**Stato:** implementato — da testare end-to-end.
+
+**Pattern adottati:** `std::expected` (come `ConfigManager`), `Logger::` per errori/warn/debug, costante unica `Config::Map::kTileSize`, nomi layer condivisi in `map/MapLayerNames.hpp` (no duplicazione).
 
 **Creare:**
 
@@ -278,9 +284,9 @@ class MapManager {
 
 **Criteri di accettazione:**
 
-- [ ] Carica mappa test senza crash.
-- [ ] `CollisionAt` / `ElevationAt` corretti su celle note.
-- [ ] Layer non riconosciuti ignorati.
+- [x] Carica mappa test senza crash.
+- [x] `CollisionAt` / `ElevationAt` corretti su celle note.
+- [x] Layer non riconosciuti ignorati.
 
 **Non fare:** rendering, ECS, collisioni entity.
 
@@ -290,18 +296,21 @@ class MapManager {
 
 **Scope:** caricare tileset da path LDtk; disegnare tile layer con `sf::VertexArray`.
 
-**Creare:** `include/systems/MapRenderSystem.hpp`, `src/systems/MapRenderSystem.cpp`
+**Stato:** implementato — integrazione visiva in `GameState::Draw` = B5.
+
+**Creare:** `include/map/Tileset.hpp`, `src/map/Tileset.cpp`, `include/systems/MapRenderSystem.hpp`, `src/systems/MapRenderSystem.cpp`
 
 **Note:**
 
 - Un `VertexArray` per layer (o batch per layer).
 - `std::mdspan` opzionale per accesso grid type-safe (roadmap 7.2).
-- Aggiungere `Config::Map::kTileSize = 32` in `Constants.hpp`.
+- Costante tile: `Config::Map::kTileSize` in `Constants.hpp` (fonte unica, 32 px).
 
 **Criteri di accettazione:**
 
-- [ ] Mappa visibile in `GameState::Draw` sotto le entity.
-- [ ] Ordine layer: Terrain → Decor → Buildings.
+- [x] `MapRenderSystem::Build` produce batch per Terrain → Decor → Buildings.
+- [x] Mappa visibile in `GameState::Draw` sotto le entity.
+- [x] Ordine layer: Terrain → Decor → Buildings.
 
 ---
 
@@ -309,12 +318,14 @@ class MapManager {
 
 **Scope:** load mappa in `GameState::Init`, chiamare `MapRenderSystem`, WASD invariato.
 
+**Stato:** implementato — da testare end-to-end.
+
 **Modificare:** `src/states/GameState.cpp`, `include/states/GameState.hpp`
 
 **Criteri di accettazione:**
 
-- [ ] Avvio partita mostra mappa + player (ancora spawn hardcoded ok temporaneamente).
-- [ ] ESC torna al menu; registry pulito in distruttore.
+- [x] Avvio partita mostra mappa + player (ancora spawn hardcoded ok temporaneamente).
+- [x] ESC torna al menu; registry pulito in distruttore.
 
 ---
 
@@ -328,6 +339,10 @@ class MapManager {
 - `BoxColliderComponent` (size, offset, is_trigger)
 - Estendere `MovementSystem` o pre-check collisioni prima del move
 
+**Stato:** implementato — da testare end-to-end.
+
+**Pattern adottati:** `MapManager::CollisionAt` / `ElevationAt`, `Config::Map::kTileSize` / `kHeightPerLevel`, movimento axis-separated in `CollisionSystem`, rendering via `ElevationComponent::height`.
+
 **IntGrid Collisions (Fase 1):**
 
 | Valore | Significato |
@@ -339,9 +354,9 @@ class MapManager {
 
 **Criteri di accettazione:**
 
-- [ ] Player non attraversa muri/acqua.
-- [ ] Su rampa, `height` cambia fluidamente; `floor_level` aggiornato con snap.
-- [ ] Movimento sub-tile (non snap a griglia).
+- [x] Player non attraversa muri/acqua.
+- [x] Su rampa, `height` cambia fluidamente; `floor_level` aggiornato con snap.
+- [x] Movimento sub-tile (non snap a griglia).
 
 **Non fare:** party, NPC, pathfinding mouse.
 
@@ -351,9 +366,203 @@ class MapManager {
 
 **Scope:** leggere entity `PlayerStart` da `MapManager`, posizionare player, applicare `facing`.
 
+**Stato:** implementato — verificato in gioco (spawn walkable, facing, debug F1).
+
+**Nota:** le verifiche B6–B7 richiedono spawn corretto (il centro schermo `(512,384)` cadeva su tile Blocked).
+
 **Criteri di accettazione:**
 
-- [ ] Player spawna sulla posizione LDtk, non al centro schermo.
+- [x] Player spawna sulla posizione LDtk, non al centro schermo.
+- [x] `FacingComponent` valorizzato da campo LDtk `Facing`.
+- [x] Log di validazione collisione su tile `PlayerStart`.
+- [x] Fallback documentato se `PlayerStart` assente (warn + centro schermo → `FindNearbySpawnPosition` in `MapCollisionUtils`).
+
+### Verifica manuale B6–B7 (dopo B8)
+
+Prerequisito: Nuova Partita, **F1** attivo.
+
+| Test | Esito atteso |
+|------|--------------|
+| Spawn | Pos ~`(176, 336)`, tile `(5,10)`, `Coll: Walkable` |
+| WASD | Movimento libero su erba; `Pos` sub-tile |
+| Muri/acqua | Player si ferma |
+| Scale | `Height` fluido, `Floor` snap a metà rampa |
+| Hitbox F1 | Rettangolo verde ai piedi + tile cyan sotto i piedi |
+
+### Verifica manuale B8
+
+| Test | Esito atteso |
+|------|--------------|
+| Posizione | Non al centro schermo; log `PlayerStart: grid (5,10)...` |
+| Facing | Debug: `Facing: South` |
+| Ciclo vita | ESC → Nuova Partita senza entity fantasma |
+
+---
+
+### C — Revisione integrazione (post-B8)
+
+**Obiettivo:** revisione mirata di quanto integrato in B1–B8 prima di procedere con B9–B11. Nessuna nuova feature gameplay; solo qualità, UX display e hardening codice.
+
+**Stato:** completato.
+
+**Prerequisito:** B1–B8 implementati.
+
+> **Implementazione futura:** letterbox/pillarbox per aspect 16:9 (via `sf::View::setViewport()`) — alternativa documentata in C.1, non implementata in C (scope minimo). Vedi anche roadmap in [`README.md`](../README.md).
+
+#### C.1 — Risoluzione finestra e aspect ratio (stretch tile)
+
+**Problema attuale:** la view logica è fissa **1024×768** (4:3) in [`Game.cpp`](src/core/Game.cpp) e [`SettingsState.cpp`](src/states/SettingsState.cpp). SFML scala quella view alla finestra intera → aspect ratio diverso = **stretch non uniforme** sui pixel.
+
+| Risoluzione | Aspect | Rapporto con 1024×768 | Effetto sui tile |
+|-------------|--------|------------------------|------------------|
+| 800×600 | 4:3 | Uguale | Scala uniforme (~0.78×), **nessuno stretch** — immagine più piccola |
+| 1024×768 | 4:3 | 1:1 | Pixel-perfect rispetto alla view logica |
+| 1280×720 | 16:9 | Diverso | **Stretch orizzontale/verticale** — tile deformati |
+
+**Raccomandazione (preferita):** whitelist solo risoluzioni **4:3** compatibili con la view logica, senza stretch:
+
+- Tenere: `800×600`, `1024×768`
+- Sostituire `1280×720` con **`1280×960`** (4:3, stesso aspect di 1024×768)
+- Opzionale futuro: `1600×1200`, `2048×1536` per monitor 2K (sempre 4:3)
+
+**Alternativa più robusta (se si vogliono aspect 16:9):** mantenere view logica 1024×768 e applicare **letterbox/pillarbox** via `sf::View::setViewport()` — i tile restano proporzionati, bande nere ai lati. Non stretchare mai la view logica.
+
+> **Nota (implementazione futura):** letterbox/pillarbox per aspect 16:9 è documentato come alternativa futura; non implementato in C (scope minimo). Whitelist 4:3 adottata come soluzione corrente.
+
+**File coinvolti:** [`include/core/Constants.hpp`](include/core/Constants.hpp) (`kSupportedResolutions`), [`include/core/DisplayUtils.hpp`](include/core/DisplayUtils.hpp) (`ApplyDisplayView()`), [`src/states/SettingsState.cpp`](src/states/SettingsState.cpp).
+
+**Criteri:**
+
+- [x] Nessuna risoluzione in whitelist deforma i tile (aspect 4:3 o letterbox).
+- [x] Cambio risoluzione in Settings non rompe menu né GameState.
+
+#### C.2 — Risoluzioni piccole su monitor Full HD / 2K
+
+**Problema:** su monitor 1080p/1440p, `800×600` (finestra piccola, scala ~0.78×) fa apparire tile 32×32 troppo piccoli.
+
+| Opzione | Pro | Contro |
+|---------|-----|--------|
+| **A. Rimuovere 800×600** | Semplice; niente stretch | Perde opzione laptop / finestra piccola |
+| **B. Zoom camera solo in GameState** (B10) | Gameplay più grande; menu resta 1024×768 | Richiede `CameraSystem`; non aiuta menu |
+| **C. Integer scale 2× con letterbox** | Pixel art nitida su 1080p | Bande nere; implementazione viewport |
+| **D. Zoom globale view logica** | Tutto più grande | Rompe layout UI menu calibrato su 1024×768 |
+
+**Raccomandazione:** combinare **A + B**:
+
+1. **Rimuovere `800×600`** dalla whitelist (o spostarla in "legacy" non default) — evita esperienza troppo piccola senza fix dedicato.
+2. **Zoom camera in `GameState`** (task B10, non qui): fattore iniziale ~`1.5×`–`2.0×` sulla view mondo, così i tile 32px restano leggibili su Full HD senza toccare la UI del menu.
+
+Non applicare zoom stretch sulla finestra: preferire sempre integer scale o camera world zoom.
+
+**Criteri:**
+
+- [x] Decisione documentata in `Constants.hpp` (risoluzioni ammesse).
+- [x] Su 1920×1080, gameplay tile leggibili (via camera zoom B10 o risoluzione default 1024×768 fullscreen/maximised).
+
+#### C.3 — Transizione elevazione fluida (no “salto”)
+
+**Problema attuale:** in [`RampTransitionSystem.cpp`](src/systems/RampTransitionSystem.cpp), sulle celle **piatte** `height` viene assegnato **istantaneamente**:
+
+```cpp
+elevation.height = floor_level * Config::Map::kHeightPerLevel;
+```
+
+Quando il player passa da un piano all’altro (esce da rampa, cambia tile di elevazione, o `floor_level` fa snap a metà rampa), l’offset Y visivo salta in un frame.
+
+**Fix raccomandato:**
+
+1. Introdurre `target_height` (da tile/rampa come ora).
+2. Interpolare ogni frame: `height = lerp(height, target_height, kHeightLerpSpeed * dt)` (passare `dt` a `RampTransitionSystem::Update`).
+3. Su celle `Stairs`: mantenere `ramp_t` per `target_height`; `floor_level` snap a `ramp_t >= 0.5` resta per gameplay.
+4. Opzionale: aumentare `Config::Map::kHeightPerLevel` (es. 24–32) se il salto percepito è troppo piccolo visivamente ma ancora discontinuo.
+
+**Non fare:** tornare a `TransformComponent.elevation`; usare solo `ElevationComponent.height`.
+
+**Criteri:**
+
+- [x] Passaggio piano 0→1 (rampa e pianerottolo) senza scatto visibile dello sprite.
+- [x] `Floor` continua a fare snap gameplay; `Height` converge con float.
+
+#### C.4 — Code review: file modificati B1–B8
+
+Revisione sistematica dei file sotto (duplicazioni, null safety, C++23, convenzioni).
+
+##### Mappa e dati LDtk
+
+| File | Note review |
+|------|-------------|
+| [`include/map/LdtkTypes.hpp`](include/map/LdtkTypes.hpp) | Struct allineate a LDtk; `source_path` popolato |
+| [`include/map/LdtkLoader.hpp`](include/map/LdtkLoader.hpp) / [`.cpp`](src/map/LdtkLoader.cpp) | `std::expected`; layer sconosciuti ignorati |
+| [`include/map/MapManager.hpp`](include/map/MapManager.hpp) / [`.cpp`](src/map/MapManager.cpp) | Cache layer; `FindEntity`; tileset world |
+| [`include/map/MapLayerNames.hpp`](include/map/MapLayerNames.hpp) | Single source nomi layer |
+| [`include/map/Tileset.hpp`](include/map/Tileset.hpp) / [`.cpp`](src/map/Tileset.cpp) | Path risolto da `source_path` |
+| [`include/map/LdtkEntityUtils.hpp`](include/map/LdtkEntityUtils.hpp) / [`.cpp`](src/map/LdtkEntityUtils.cpp) | Parse `field_instances`; `constexpr` string helpers |
+| [`include/map/MapCollisionUtils.hpp`](include/map/MapCollisionUtils.hpp) / [`.cpp`](src/map/MapCollisionUtils.cpp) | `GetFootAabb`, `GetTileSize`, `WorldToTile` (consolidato) |
+
+##### Sistemi e stati
+
+| File | Note review |
+|------|-------------|
+| [`include/systems/MapRenderSystem.hpp`](include/systems/MapRenderSystem.hpp) / [`.cpp`](src/systems/MapRenderSystem.cpp) | Ordine layer; `texture_` null se `Draw` senza `Build` |
+| [`include/systems/CollisionSystem.hpp`](include/systems/CollisionSystem.hpp) / [`.cpp`](src/systems/CollisionSystem.cpp) | Usa `MapCollisionUtils` |
+| [`include/systems/RampTransitionSystem.hpp`](include/systems/RampTransitionSystem.hpp) / [`.cpp`](src/systems/RampTransitionSystem.cpp) | Lerp `height` con `kHeightLerpSpeed`; usa `MapCollisionUtils` |
+| [`include/systems/RenderSystem.hpp`](include/systems/RenderSystem.hpp) / [`.cpp`](src/systems/RenderSystem.cpp) | Usa `ElevationComponent::height` |
+| [`include/systems/DebugRenderSystem.hpp`](include/systems/DebugRenderSystem.hpp) / [`.cpp`](src/systems/DebugRenderSystem.cpp) | Usa `MapCollisionUtils`; `map` opzionale |
+| [`include/states/GameState.hpp`](include/states/GameState.hpp) / [`.cpp`](src/states/GameState.cpp) | Ordine Init; `map_ready_` guard |
+| [`src/core/Game.cpp`](src/core/Game.cpp) | `ApplyDisplayView()`; mappa in GameState |
+| [`include/core/DisplayUtils.hpp`](include/core/DisplayUtils.hpp) / [`.cpp`](src/core/DisplayUtils.cpp) | View logica 1024×768 condivisa |
+
+##### Core, componenti, risorse
+
+| File | Note review |
+|------|-------------|
+| [`include/core/Game.hpp`](include/core/Game.hpp) | `MapManager` in `GameData` |
+| [`include/core/Constants.hpp`](include/core/Constants.hpp) | `Config::Map::*`; risoluzioni (C.1–C.2) |
+| [`include/components/Components.hpp`](include/components/Components.hpp) | `Elevation`, `BoxCollider`, `Facing` |
+| [`include/resources/AssetManager.hpp`](include/resources/AssetManager.hpp) | Fallback usa `Config::Map::kTileSize` |
+
+##### Documentazione
+
+| File | Note review |
+|------|-------------|
+| [`doc/agent_development_guide.md`](doc/agent_development_guide.md) | Stato fasi |
+| [`README.md`](README.md) | Roadmap 7.x |
+
+##### Checklist review tecnica
+
+**Duplicazioni da consolidare:**
+
+- [x] `GetFootAabb`, `GetTileSize`, `WorldToTile` — estratti in [`include/map/MapCollisionUtils.hpp`](include/map/MapCollisionUtils.hpp).
+- [x] `ApplyDisplayView()` — in [`include/core/DisplayUtils.hpp`](include/core/DisplayUtils.hpp).
+
+**Null / sicurezza:**
+
+- [x] `MapRenderSystem::Draw` con `texture_ == nullptr` — già guarded; verificare `map_ready_` in `GameState`.
+- [x] `MapManager::Load` fallito → GameState avvia senza mappa; player senza collisioni significative — OK con warn.
+- [x] `FindEntity` / `GetFieldString` su JSON malformato — `nlohmann` può throw; valutare try/catch in loader (già presente a livello file).
+- [x] `entt::registry` dopo `clear()` — distruttore `GameState` OK.
+
+**C++23 — opportunità non sfruttate:**
+
+- [ ] `std::expected` — già usato in loader/MapManager/Tileset; estendere a parse entity se utile.
+- [ ] `std::span` — candidato per `MapLayerNames` in `IsKnownLayer` (già in loader).
+- [x] `std::ranges` — `FindEntityByIdentifier` usa `std::ranges::find_if`.
+- [x] `constexpr` — `CollisionTypeToString` / `FacingToString` sono `constexpr`.
+- [ ] `std::mdspan` — opzionale per `tile_data` (roadmap 7.2, non urgente).
+
+**Vulnerabilità / robustezza:**
+
+- [x] Path LDtk da costante — nessun input utente; rischio basso.
+- [x] Nessuna allocazione hot-path nei sistemi per frame — OK.
+- [x] `MovementSystem` non più usato in GameState — documentato in header.
+
+**Criteri di completamento sezione C:**
+
+- [x] C.1–C.3 implementati o scartati con decisione documentata.
+- [x] C.4 checklist review completata; duplicazioni critiche consolidate.
+- [x] Build pulita; test manuali B6–B8 ancora validi.
+
+**Non fare in C:** party, LDtk phase2, `DepthSortSystem`/`CameraSystem` completi (restano B9–B11), salvo zoom camera se accoppiato esplicitamente a C.2.
 
 ---
 
@@ -362,13 +571,81 @@ class MapManager {
 **Scope:**
 
 - `DepthSortSystem` con `height` float
-- `CameraSystem` — view mondo segue player
+- `CameraSystem` — view mondo segue player, **zoom configurabile per mondo**
 - Estendere `DebugRenderSystem`: griglia tile, celle collision/elevation, hitbox (F1)
 
-**Criteri di accettazione:**
+#### B10 — CameraSystem (follow + zoom per mondo)
+
+**Obiettivo:** la camera segue il player in `GameState` e applica un **fattore di zoom dipendente dal mondo/livello caricato**, non un valore fisso per tutta la partita.
+
+**Perché:** overworld e dungeon hanno esigenze diverse — in un dungeon ristretto (pochi tile visibili, corridoi) uno zoom maggiore migliora leggibilità e immersione; sull’overworld uno zoom più ampio mostra più contesto. Collegato anche alla revisione [C.2](#c2--risoluzioni-piccole-su-monitor-full-hd--2k) (tile leggibili su Full HD).
+
+**Regola d’oro (dove vive il dato):**
+
+| Dato | Dove | Esempio |
+|------|------|---------|
+| Zoom default di un **tipo** di mondo riusabile | JSON `data/world/` (futuro) | `"dungeon_default": 1.75` |
+| Zoom **di questo livello** | LDtk — custom field sul livello | `camera_zoom: 1.5` su `Level_Dungeon_01` |
+| Posizione/offset camera runtime | ECS o `CameraSystem` | follow player, clamp ai bordi mappa |
+
+**Fase 7 (minimo):**
+
+1. Custom field LDtk sul livello: `camera_zoom` (Float, default `1.0`) — estendere `LdtkLoader` / `LdtkLevel` come già fatto per `tile_size`.
+2. Costanti fallback in `Config::Map`:
+   ```cpp
+   inline constexpr float kDefaultCameraZoom = 1.f;
+   inline constexpr float kDungeonCameraZoom = 1.75f;  // usato se assente in LDtk e level_id contiene "dungeon" (euristica opzionale Fase 7)
+   ```
+3. `CameraSystem` espone zoom corrente; alla `Load` del livello legge `camera_zoom` da `MapManager::GetLevel()`.
+4. Applicazione SFML: ridurre le dimensioni della **view mondo** (o equivalente `zoom` su `sf::View`) — view più piccola = più ingrandimento. **Non** scalare la finestra (evita stretch tile, vedi C.1).
+5. Solo `GameState` usa la view mondo; `MainMenuState` / `SettingsState` restano su view logica 1024×768.
+
+**Valori indicativi (iterabili in LDtk):**
+
+| Tipo mondo | `camera_zoom` | Note |
+|------------|---------------|------|
+| Overworld / villaggio | `1.0` | Campo visivo ampio |
+| Interni / dungeon | `1.5` – `2.0` | Corridoi, stanze piccole |
+| Boss arena | `1.25` | Compromesso |
+
+**API prevista (indicativa):**
+
+```cpp
+class CameraSystem {
+ public:
+  static void InitFromLevel(const LdtkLevel& level);
+  static void Update(entt::registry& registry, const MapManager& map);
+  static void Apply(sf::RenderWindow& window);
+  [[nodiscard]] static float GetZoom();
+};
+```
+
+**Criteri di accettazione (camera):**
+
+- [ ] Camera segue il centro del player (o offset configurabile).
+- [ ] Zoom letto dal livello LDtk (`camera_zoom`); fallback `Config::Map::kDefaultCameraZoom`.
+- [ ] Cambio mappa (futuro) può cambiare zoom senza modificare `CameraSystem`.
+- [ ] Menu/Settings non usano la view mondo — nessuna regressione UI.
+- [ ] (Stretch) Lo zoom camera non sostituisce il letterbox 4:3 di C.1 — sono complementari.
+
+**Non fare in B10:**
+
+- Zoom legato alla risoluzione finestra (quello è display scaling, C.1).
+- Zoom diverso per entity singole.
+- Smooth zoom animato al cambio livello (opzionale post-Fase 7).
+
+#### B9 — DepthSortSystem
+
+- Sostituisce `z_index` statico; sort key con `ElevationComponent.height` + `foot_y`.
+
+#### B11 — Debug overlay mappa
+
+- Griglia tile, celle collision/elevation, hitbox (F1) — estensione `DebugRenderSystem`.
+
+**Criteri di accettazione (complessivi B9–B11):**
 
 - [ ] Entity ordinate correttamente davanti/dietro per Y + height.
-- [ ] Camera segue player; UI menu non regressa.
+- [ ] Camera segue player con zoom per mondo; UI menu non regressa.
 - [ ] Debug overlay toggle funziona.
 
 ---
@@ -382,7 +659,7 @@ class MapManager {
 
 ---
 
-## Fase C — LDtk phase2 (post Fase 7)
+## Fase D — LDtk phase2 (post Fase 7)
 
 **Obiettivo:** layer completi Franuka, entity interattive, terreno avanzato.
 
@@ -395,6 +672,7 @@ class MapManager {
 - `LdtkEntityFactory` per Door, NPC, EnemySpawn, Chest, …
 - `AnimatedTileComponent` + `data/tile_anims/`.
 - Pattern tile vuoto + entity per oggetti interattivi.
+- **Raffinamento collisioni** — decor senza BLOCKED, entity con hitbox stretta, (opz.) IntGrid sub-tile; vedi [`ldtk-phase2-complete.md` § Raffinamento collisioni](ldtk-doc/ldtk-phase2-complete.md#raffinamento-collisioni-task-dedicato).
 
 ### Prerequisiti
 

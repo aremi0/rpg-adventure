@@ -126,10 +126,13 @@ You can find detailed documentation in the `doc/` directory:
     * ✅ **6.1: Integrazione Parser** (Setup CMake per nlohmann/json).
     * 🔄 **6.2: Settings Persistence** (Salvataggio/Caricamento base-fallback delle impostazioni audio/video su file).
 * ⬜ **Fase 7: Mappa, Collisioni e Telecamera (LDtk Integration)**
-    * ⬜ **7.1: MapManager & LDtk Loader** (`std::expected`, parsing JSON `.ldtk`, API grid).
-    * ⬜ **7.2: VertexArray Rendering** (Tile layer con `sf::VertexArray`; `std::mdspan` opzionale).
-    * ⬜ **7.3: 2.5D & ECS** (`ElevationComponent` dual-layer: `floor_level` int + `height` float; `RampTransitionSystem`; `DepthSortSystem`).
-    * ⬜ **7.4: Collisioni** (`BoxColliderComponent`, grid `Collisions`, movimento float sub-tile).
+    * 🔄 **7.1: MapManager & LDtk Loader** (`std::expected`, parsing JSON `.ldtk`, API grid) — *implementato, da testare end-to-end*.
+    * 🔄 **7.2: VertexArray Rendering** (Tileset + `MapRenderSystem`) — *implementato, da testare visivamente*.
+    * 🔄 **7.2b: Integrazione GameState** (load mappa in `Init`, draw sotto entity) — *implementato, da testare end-to-end*.
+    * 🔄 **7.3: 2.5D & ECS** (`ElevationComponent`, `RampTransitionSystem`) — *implementato, da testare end-to-end*.
+    * 🔄 **7.4: Collisioni** (`BoxColliderComponent`, `CollisionSystem`, movimento sub-tile) — *implementato, da testare end-to-end*.
+    * ✅ **7.4b: PlayerStart spawn** (posizione + facing da LDtk) — *implementato, verificato in gioco*.
+    * ✅ **7.x Revisione post-B8 (C)** — whitelist 4:3 (`1024×768`, `1280×960`), `ApplyDisplayView()`, elevazione fluida (`kHeightLerpSpeed`), `MapCollisionUtils`. *Implementazione futura: letterbox/pillarbox per aspect 16:9 (non in scope C).*
     * ⬜ **7.5: Camera & Debug** (Camera segue player; overlay griglia/hitbox/elevazione).
     * *Input Fase 7: **WASD** only. Un solo personaggio controllato. Vedi [Agent Guide](doc/agent_development_guide.md).*
 * ⬜ **Fase 8: Animazioni, Party & RPG**
@@ -146,9 +149,7 @@ Esempio per il loader (7.1):
 Stai lavorando su RPG Adventure (C++23, SFML, EnTT).
 Leggi doc/agent_development_guide.md — sezioni "Regole d'oro" e "B1–B2".
 Rispetta doc/naming_conventions.md.
-Scope: implementare LdtkLoader + MapManager solo.
-Non implementare rendering, collisioni o party.
-Per ogni agente basta indicare la sezione della guida (es. B6–B7, Fase 8.3) e il task resta delimitato.
+Scope: implementare LdtkLoader + MapManager solo. Importante, non reinventare la ruota, cerca se trovi già costanti/funzioni riutilizzabili di non crearne di nuove, scrivi codice sicuro usando moduli, expected e tutte le best practices di c++23 e soprattuto codice ottimizzato ma anche leggibile. Sfrutta anche la classe di Logging in maniera consona.
 
 ---
 

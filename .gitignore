@@ -24,3 +24,6 @@ compile_commands.json
 # Se usi i link ai profili nix
 result
 .direnv/
+
+# --- Paid Assets ---
+assets/maps/

@@ -4,6 +4,7 @@
 #include "resources/AssetManager.hpp"
 #include <entt/entt.hpp>
 #include "core/ConfigManager.hpp"
+#include "map/MapManager.hpp"
 
 struct GameData {
     sf::RenderWindow window;
@@ -11,7 +12,7 @@ struct GameData {
     AssetManager assets;
     entt::registry registry;
     ConfigManager config;
-    // Qui aggiungeremo in futuro AssetManager e InputManager
+    MapManager map;
 };
 
 using GameDataRef = std::shared_ptr<GameData>;

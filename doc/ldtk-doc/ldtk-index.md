@@ -78,6 +78,62 @@ Il loader C++ deve ignorare layer sconosciuti (forward-compatible).
 
 ---
 
+## Asset nel repository e path PNG
+
+### Struttura cartelle (Fase 1)
+
+```text
+assets/maps/world/
+  rpg-adventure-phase1.ldtk
+  tilesets/
+    RPG tileset (full) - 200%.png      # mappa (32×32)
+  entities/
+    04_Swashbuckler_Full Sheet (REFERENCE).png   # solo editor LDtk
+```
+
+I PNG vanno **accanto** al `.ldtk`, con path relativi `tilesets/...` e `entities/...`.
+
+### Problema: LDtk riscrive i path del bundle
+
+Se il progetto è stato importato dal percorso originale Franuka (`Fantasy RPG asset pack/2x/...`), ogni **Save** in LDtk può ripristinare quei path nel JSON. Il motore e il loader C++ non troveranno le texture.
+
+### Script `fix_ldtk_paths.sh`
+
+Dalla **root del repo**:
+
+```bash
+./fix_ldtk_paths.sh
+```
+
+| Comando | Effetto |
+|---------|---------|
+| `./fix_ldtk_paths.sh` | Corregge `assets/maps/world/rpg-adventure-phase1.ldtk` |
+| `./fix_ldtk_paths.sh path/to/altro.ldtk` | Corregge un progetto LDtk specifico |
+| `./fix_ldtk_paths.sh --help` | Mostra l'help |
+
+**Cosa fa:**
+
+1. Sostituisce nel JSON i path bundle con quelli del repo:
+   - `Fantasy RPG asset pack/2x/RPG tileset (full) - 200%.png` → `tilesets/RPG tileset (full) - 200%.png`
+   - `Fantasy RPG heroes pack (...)/04_Swashbuckler_Full Sheet (REFERENCE).png` → `entities/04_Swashbuckler_Full Sheet (REFERENCE).png`
+2. Verifica che i PNG esistano nelle cartelle `tilesets/` e `entities/`.
+3. Se i path sono già corretti, non modifica il file.
+
+**Workflow consigliato dopo ogni modifica in LDtk:**
+
+```bash
+# 1. Salva in LDtk (File → Save)
+# 2. Dalla root del progetto:
+./fix_ldtk_paths.sh
+# 3. (Opzionale) Controlla che LDtk apra ancora bene il progetto
+```
+
+### Soluzione permanente (opzionale)
+
+In LDtk → **Project → Tilesets** → per ogni tileset, **re-importa** il PNG da `tilesets/` o `entities/` dentro `assets/maps/world/`. Dopo un re-import corretto, LDtk dovrebbe salvare path già allineati al repo; lo script resta utile come rete di sicurezza.
+
+---
+
 ## Elevazione dual-layer (decisione engine)
 
 | Livello | Tipo | Dove |
@@ -128,3 +184,4 @@ sort_key = static_cast<int>(elev.height * kSortScale)
 4. `ramp_up` / `ramp_down` separati → usa `Stairs` + `Elevation` grid.
 5. Party/compagni spawnati da LDtk al load → **no**; reclutamento runtime (Fase 8.3).
 6. Punta-e-clicca in Fase 7 → **no**; solo WASD fino a Fase 8.2.
+7. Path PNG bundle dopo Save LDtk → eseguire `./fix_ldtk_paths.sh` (vedi sopra).

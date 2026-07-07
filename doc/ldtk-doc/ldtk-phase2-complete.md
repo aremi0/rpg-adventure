@@ -235,6 +235,75 @@ void PortalSystem::activate(const PortalComponent& portal, Entity player) {
 
 ---
 
+## Raffinamento collisioni (task dedicato)
+
+> **Contesto:** in Fase 1 la griglia `Collisions` è a **32×32 px** (stesso passo dei tile visivi). Decor come rocce piccole o tronchi stretti obbligano a bloccare tile interi — vedi discussione in Fase 7.  
+> **Prerequisito:** Fase 7 completata (loader, `CollisionSystem`, `BoxColliderComponent`).
+
+### Obiettivo
+
+Collisioni più aderenti al pixel art senza rompere il pipeline Fase 1. Tre approcci complementari (ordine consigliato):
+
+| Priorità | Approccio | Dove vive il dato | Engine |
+|----------|-----------|-------------------|--------|
+| 1 | **Decor senza collisione** | `Decor_Floor` / `Decor` = solo grafica | Nessun BLOCKED su decor; tronco albero = 1 tile o entity |
+| 2 | **Entity + `BoxColliderComponent`** | LDtk entity (`ResourceNode`, `Destructible`, …) + JSON template | `LdtkEntityFactory` spawna hitbox AABB piccola runtime |
+| 3 | **IntGrid sub-tile** (opzionale) | `Collisions` / `Elevation` con `__gridSize` 16 px | Loader legge `grid_size` per layer; query in pixel world |
+
+### Task engine — Entity collision (priorità 2)
+
+**Creare / estendere:**
+
+- `LdtkEntityFactory` — spawn entity da layer `Entities` con `BoxColliderComponent` (size/offset da JSON o custom fields LDtk)
+- Entity schema: `Rock`, `TreeTrunk`, `Bush` con `blocks_path: true` e hitbox più piccola del tile
+- Pattern documentato: tile layer **vuoto** sotto l'entity; IntGrid walkable sulla cella; collisione solo su AABB entity
+
+**Criteri:**
+
+- [ ] Player non passa attraverso tronco/roccia entity ma può aggirare lo spazio libero nel tile
+- [ ] Distruggibile (`Destructible`) rimuove entity e aggiorna passabilità
+- [ ] `CollisionSystem` già gestisce AABB entity vs griglia — estendere a **entity-vs-entity** o **entity statiche** in lista registry (Fase 2)
+
+### Task engine — IntGrid sub-tile (priorità 3, opzionale)
+
+**Problema attuale:** `MapCollisionUtils::WorldToTile` e `MapManager::CollisionAt` assumono un unico `level.tile_size` (32 px). IntGrid a 16 px senza codice = collisioni sfasate.
+
+**Modifiche:**
+
+1. `LdtkIntGridLayer` + loader: parsare `__gridSize` per layer
+2. `MapManager::CollisionAtWorld(px, py)` o overload con `grid_size` del layer Collisions
+3. `CollisionSystem`, `RampTransitionSystem`, debug F1: usare `grid_size` del layer collisioni, non `level.tile_size`
+4. `Elevation` può restare 32 px o allinearsi a 16 px — documentare se divergono
+
+**Criteri:**
+
+- [ ] Rocca su mezzo tile: BLOCKED solo sulla metà inferiore della griglia fine
+- [ ] Rampe `Stairs` coerenti tra griglia fine e tile visivi 32 px
+- [ ] Nessuna regressione mappe Fase 1 (solo 32 px)
+
+### Convenzioni LDtk Fase 2 (editor)
+
+| Elemento | Layer tile | IntGrid Collisions | Entity |
+|----------|------------|-------------------|--------|
+| Roccia piccola decorativa | `Decor_Floor` | Walkable | — |
+| Roccia che blocca | — o decor | — | `Rock` + hitbox 12×8 px |
+| Albero | chioma `Decor_Canopy` | Walkable sotto chioma | `TreeTrunk` 1 hitbox stretta |
+| Muro / acqua / cliff | `Ground` / `Water` / `Cliffs` | BLOCKED / WATER | — |
+
+### Non fare in questo task
+
+- Pathfinding A* (Fase 8.2)
+- Physics engine / polygon collision
+- Modificare `Config::Map::kTileSize` globale (resta 32 px per rendering tileset Franuka)
+
+### Riferimenti codice Fase 1 (base)
+
+- [`MapCollisionUtils.hpp`](../../include/map/MapCollisionUtils.hpp) — `IsPassableCollision`, `FindNearbySpawnPosition`
+- [`CollisionSystem.cpp`](../../src/systems/CollisionSystem.cpp) — AABB piedi vs griglia
+- [`ldtk-entity-schema.md`](ldtk-entity-schema.md) — `blocks_path`, template entity
+
+---
+
 ## Checklist Fase 2
 
 ### Layer
@@ -252,6 +321,11 @@ void PortalSystem::activate(const PortalComponent& portal, Entity player) {
 - [ ] `StatusEffectSystem` — gestisce wet, poison, bleed
 - [ ] `DamageSystem` — soglia minima danno per destructible
 - [ ] `LootSystem` — tabelle loot da JSON
+
+### Collisioni (raffinamento)
+- [ ] Decor senza BLOCKED su IntGrid; ostacoli piccoli via entity + hitbox
+- [ ] `LdtkEntityFactory` con `BoxColliderComponent` per rocce/tronchi
+- [ ] (Opz.) IntGrid sub-tile 16 px — loader + query world pixel
 
 ---
 

@@ -21,10 +21,13 @@ void RenderSystem::Draw(entt::registry& registry, sf::RenderTarget& target) {
         auto& sprite_comp = view.get<SpriteComponent>(entity);
 
         // 3. APPLICAZIONE DEI DATI: Aggiorniamo lo sprite di SFML usando i nostri dati POD
-        // Applicazione in 2.5D, se elevation è 0, Y resta normale, se è > 0, Y diminuisce (spostamento verso l'alto)
+        float visual_height = 0.f;
+        if (const auto* elevation = registry.try_get<ElevationComponent>(entity)) {
+            visual_height = elevation->height;
+        }
         sprite_comp.sprite.setPosition(
             transform.position.x, 
-            transform.position.y - transform.elevation
+            transform.position.y - visual_height
         );
         
         sprite_comp.sprite.setScale(transform.scale);

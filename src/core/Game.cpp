@@ -2,6 +2,7 @@
 #include "states/MainMenuState.hpp"
 #include "utils/Logger.hpp"
 #include "core/Constants.hpp"
+#include "core/DisplayUtils.hpp"
 #include <SFML/Audio.hpp>
 
 Game::Game() : data_(std::make_shared<GameData>()) {
@@ -15,11 +16,7 @@ Game::Game() : data_(std::make_shared<GameData>()) {
         std::string(Config::Game::kWindowName));
 
     // 3. Imposta la View logica fissa (1024x768) — indipendente dalla finestra
-    sf::View logical_view(sf::FloatRect(
-        0, 0,
-        Config::Game::kLogicalWidth,
-        Config::Game::kLogicalHeight));
-    data_->window.setView(logical_view);
+    ApplyDisplayView(data_->window);
 
     // Warmup OpenAL: pre-inizializza il driver audio per eliminare la latenza al primo suono
     if constexpr (Config::Game::kAudioWarmup) {
@@ -36,7 +33,6 @@ Game::Game() : data_(std::make_shared<GameData>()) {
         Logger::Trace("Audio warmup completato (OpenAL pre-inizializzato)");
     }
 
-    // Qui in futuro caricheremo lo stato iniziale (es. MenuState)
     data_->machine.AddState(std::make_unique<MainMenuState>(data_));
     data_->machine.ProcessStateChanges();
     Logger::Debug("Stato iniziale caricato: ({})", data_->machine.GetActiveState()->GetStateName());

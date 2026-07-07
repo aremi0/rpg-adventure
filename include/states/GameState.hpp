@@ -1,6 +1,7 @@
 #pragma once
 #include "core/State.hpp"
 #include "core/Game.hpp"
+#include "systems/MapRenderSystem.hpp"
 #include <entt/entt.hpp>
 
 class GameState : public State {
@@ -22,6 +23,8 @@ class GameState : public State {
         GameDataRef data_;
         bool is_paused_ = false;
         bool is_debug_mode_ = false;
+        bool map_ready_ = false;
 
+        MapRenderSystem map_renderer_;
         entt::entity hero_;
 };

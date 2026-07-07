@@ -8,6 +8,15 @@
 
 namespace Config {
 
+    namespace Map {
+        inline constexpr int kTileSize = 32;
+        inline constexpr float kHeightPerLevel = 16.f;
+        inline constexpr float kHeightLerpSpeed = 12.f;
+        inline constexpr int kMaxSpawnSearchRadius = 32;
+        inline constexpr std::string_view kWorldMapPath =
+            "assets/maps/world/rpg-adventure-phase1.ldtk";
+    }
+
     namespace Game {
         // inline constexpr + string_view = Efficienza massima, zero allocazioni
         inline constexpr std::string_view kWindowName = "RPG Adventure";
@@ -32,8 +41,6 @@ namespace Config {
         inline constexpr bool kAudioWarmup = true;
 
         namespace Textures {
-            inline constexpr unsigned int kTileSize = 64;
-
             inline constexpr std::string_view kHeroTexName = "hero_tex";
             inline constexpr std::string_view kHeroTexPath = "assets/textures/hero.png";
         }
@@ -83,12 +90,14 @@ namespace Config {
         inline constexpr unsigned int kDefaultWindowWidth = 1024;
         inline constexpr unsigned int kDefaultWindowHeight = 768;
 
-        // Risoluzioni finestra supportate (whitelist per validazione)
-        inline constexpr std::array<std::pair<unsigned int, unsigned int>, 3> kSupportedResolutions = {{
-            {800, 600},
-            {1024, 768},
-            {1280, 720}
-        }};
+        // Risoluzioni finestra supportate (whitelist 4:3, compatibili con view logica).
+        // Solo aspect 4:3: niente stretch sui tile. Zoom gameplay → CameraSystem (B10).
+        // Futuro: letterbox/pillarbox per aspect 16:9 (non in scope C).
+        inline constexpr std::array<std::pair<unsigned int, unsigned int>, 2>
+            kSupportedResolutions = {{
+                {1024, 768},
+                {1280, 960},
+            }};
 
         inline constexpr std::string_view kRisoluzioneName = "Risoluzione";
         inline constexpr std::string_view kIndietroName = "Indietro";
